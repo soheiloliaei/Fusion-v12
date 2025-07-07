@@ -13,7 +13,7 @@ Fusion v11 is a revolutionary AI system that elevates projects from basic execut
 
 ### ✨ Key Features
 
-- **🧠 6 Specialized AI Agents** with distinct personalities and expertise
+- **🧠 12+ Specialized AI Agents** with distinct personalities and expertise
 - **⚡ 4 Execution Modes** (Simulate, Ship, Critique, Advisory Board)
 - **🔄 Creative Tension Orchestration** for breakthrough innovation
 - **📊 Design Craft Metrics** with 4-dimensional excellence tracking
@@ -84,13 +84,30 @@ Fusion v11 Core
 
 ## 🎭 Agent Personalities
 
-### The Core Team
-- **🎨 DesignMaestro** - Visionary design leadership
-- **🔧 ExecutionEngine** - Production-ready implementation
-- **🎯 StrategyPilot** - Strategic thinking and planning
-- **🔍 CriticalDesignAdvisor** - Quality assurance and feedback
-- **📝 PromptEngineer** - Communication and clarity
-- **👑 VPDesign** - Executive perspective and decisions
+### The Complete Team (12+ Specialized Agents)
+
+**🎯 Core Strategy & Leadership:**
+- **👑 VPDesign** - Executive perspective and strategic decisions
+- **🎯 StrategyPilot** - Market positioning and business strategy
+- **📝 PromptEngineer** - Communication clarity and task routing
+- **🎪 Dispatcher** - Agent orchestration and routing intelligence
+
+**🎨 Design & Creative:**
+- **🎨 DesignMaestro** - Visionary design leadership and UX flows
+- **🔧 DesignTechnologist** - Component generation and UI code
+- **🎭 CreativeDirector** - Brand voice and content strategy
+- **📖 NarrativeArchitect** - Story structure and user journey mapping
+
+**🔍 Analysis & Intelligence:**
+- **🔍 CriticalDesignAdvisor** - Quality assurance and constructive feedback
+- **🧠 InsightsSynthesizer** - Knowledge clustering and insight extraction
+- **⚖️ EvaluatorAgent** - Autonomous scoring and rubric evaluation
+
+**🚀 Plus Specialized Modules:**
+- Creative tension pairing system
+- Execution mode management
+- Design craft metrics
+- Personality perspective overlays
 
 ### Strategic Perspectives
 - **Steve Jobs** - Simplicity and user experience obsession
