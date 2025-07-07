@@ -13,7 +13,7 @@ Fusion v11 is a revolutionary AI system that elevates projects from basic execut
 
 ### ✨ Key Features
 
-- **🧠 12+ Specialized AI Agents** with distinct personalities and expertise
+- **🧠 6 Specialized AI Agents** with distinct personalities and expertise
 - **⚡ 4 Execution Modes** (Simulate, Ship, Critique, Advisory Board)
 - **🔄 Creative Tension Orchestration** for breakthrough innovation
 - **📊 Design Craft Metrics** with 4-dimensional excellence tracking
@@ -24,13 +24,13 @@ Fusion v11 is a revolutionary AI system that elevates projects from basic execut
 
 ### Option 1: One-Command Installation
 ```bash
-curl -fsSL https://raw.githubusercontent.com/soheiloliaei/fusion-v11/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/[username]/fusion-v11/main/install.sh | bash
 ```
 
 ### Option 2: Manual Installation
 ```bash
 # Clone repository
-git clone https://github.com/soheiloliaei/fusion-v11.git
+git clone https://github.com/[username]/fusion-v11.git
 cd fusion-v11
 
 # Install dependencies
@@ -84,30 +84,13 @@ Fusion v11 Core
 
 ## 🎭 Agent Personalities
 
-### The Complete Team (12+ Specialized Agents)
-
-**🎯 Core Strategy & Leadership:**
-- **👑 VPDesign** - Executive perspective and strategic decisions
-- **🎯 StrategyPilot** - Market positioning and business strategy
-- **📝 PromptEngineer** - Communication clarity and task routing
-- **🎪 Dispatcher** - Agent orchestration and routing intelligence
-
-**🎨 Design & Creative:**
-- **🎨 DesignMaestro** - Visionary design leadership and UX flows
-- **🔧 DesignTechnologist** - Component generation and UI code
-- **🎭 CreativeDirector** - Brand voice and content strategy
-- **📖 NarrativeArchitect** - Story structure and user journey mapping
-
-**🔍 Analysis & Intelligence:**
-- **🔍 CriticalDesignAdvisor** - Quality assurance and constructive feedback
-- **🧠 InsightsSynthesizer** - Knowledge clustering and insight extraction
-- **⚖️ EvaluatorAgent** - Autonomous scoring and rubric evaluation
-
-**🚀 Plus Specialized Modules:**
-- Creative tension pairing system
-- Execution mode management
-- Design craft metrics
-- Personality perspective overlays
+### The Core Team
+- **🎨 DesignMaestro** - Visionary design leadership
+- **🔧 ExecutionEngine** - Production-ready implementation
+- **🎯 StrategyPilot** - Strategic thinking and planning
+- **🔍 CriticalDesignAdvisor** - Quality assurance and feedback
+- **📝 PromptEngineer** - Communication and clarity
+- **👑 VPDesign** - Executive perspective and decisions
 
 ### Strategic Perspectives
 - **Steve Jobs** - Simplicity and user experience obsession
@@ -203,8 +186,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - **Documentation**: [Full Documentation](docs/)
-- **Issues**: [GitHub Issues](https://github.com/soheiloliaei/fusion-v11/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/soheiloliaei/fusion-v11/discussions)
+- **Issues**: [GitHub Issues](https://github.com/[username]/fusion-v11/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/[username]/fusion-v11/discussions)
 
 ## 🌟 Showcase
 
@@ -231,4 +214,4 @@ Innovation Score: 0.87 | Design Quality: 0.91
 
 **🚀 Transform your projects from basic execution to strategic design innovation with Fusion v11**
 
-[⬇️ Download](https://github.com/soheiloliaei/fusion-v11/releases) | [📚 Documentation](docs/) | [🎯 Examples](examples/) | [💬 Community](https://github.com/soheiloliaei/fusion-v11/discussions) 
+[⬇️ Download](https://github.com/[username]/fusion-v11/releases) | [📚 Documentation](docs/) | [🎯 Examples](examples/) | [💬 Community](https://github.com/[username]/fusion-v11/discussions) 
