@@ -24,13 +24,13 @@ Fusion v11 is a revolutionary AI system that elevates projects from basic execut
 
 ### Option 1: One-Command Installation
 ```bash
-curl -fsSL https://raw.githubusercontent.com/[username]/fusion-v11/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soheiloliaei/fusion-v11/main/install.sh | bash
 ```
 
 ### Option 2: Manual Installation
 ```bash
 # Clone repository
-git clone https://github.com/[username]/fusion-v11.git
+git clone https://github.com/soheiloliaei/fusion-v11.git
 cd fusion-v11
 
 # Install dependencies
@@ -186,8 +186,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - **Documentation**: [Full Documentation](docs/)
-- **Issues**: [GitHub Issues](https://github.com/[username]/fusion-v11/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/[username]/fusion-v11/discussions)
+- **Issues**: [GitHub Issues](https://github.com/soheiloliaei/fusion-v11/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/soheiloliaei/fusion-v11/discussions)
 
 ## 🌟 Showcase
 
@@ -214,4 +214,4 @@ Innovation Score: 0.87 | Design Quality: 0.91
 
 **🚀 Transform your projects from basic execution to strategic design innovation with Fusion v11**
 
-[⬇️ Download](https://github.com/[username]/fusion-v11/releases) | [📚 Documentation](docs/) | [🎯 Examples](examples/) | [💬 Community](https://github.com/[username]/fusion-v11/discussions) 
+[⬇️ Download](https://github.com/soheiloliaei/fusion-v11/releases) | [📚 Documentation](docs/) | [🎯 Examples](examples/) | [💬 Community](https://github.com/soheiloliaei/fusion-v11/discussions) 
