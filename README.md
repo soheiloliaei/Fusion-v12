@@ -27,25 +27,22 @@ Fusion v11 Complete is a revolutionary AI system that elevates projects from bas
 
 ## 🚀 Quick Start
 
-### Option 1: ChatGPT Integration (10-File Package) - RECOMMENDED
+### Option 1: ChatGPT Integration (Streamlined Package) - RECOMMENDED
 ```bash
-# Download the ChatGPT 10-files package
-cd ChatGPT_10_Files/
+# Download the ChatGPT Upload Package (7 Essential Files)
+cd ChatGPT_Upload_Package/
 
-# Upload all 10 files to ChatGPT:
-# 1. CHATGPT_MASTER_PROMPT_V11_COMPLETE.md
-# 2. fusion_v11_agents_complete.py
-# 3. fusion_v11_complete_implementation.py
-# 4. fusion_v11_monitoring_system.py
-# 5. fusion_v11_knowledge_base.json
-# 6. creative_tension_pairing.py
-# 7. execution_mode_manager.py
-# 8. design_craft_metrics.py
-# 9. personality_perspective_overlay.py
-# 10. clarification_engine.py
+# Upload all 7 files to ChatGPT:
+# 1. FUSION_V11_ENHANCED_WITH_PRP_OPTIMIZED.md (Main prompt - under 8KB)
+# 2. enhanced_clarification_engine.py (Enhanced clarification system)
+# 3. prp_builder_auto_launcher.py (Auto PRP builder with trigger phrases)
+# 4. design_inspiration_api.py (Design inspiration API)
+# 5. README.md (Package overview)
+# 6. PRP_SETUP_INSTRUCTIONS.md (Setup guide)
+# 7. API_KEYS_SETUP_GUIDE.md (API keys instructions)
 
 # Send activation prompt:
-"Activate Fusion v11 Complete with the uploaded files. Initialize all 15 agents (11 v10 core + 4 v10 enhancement), enable v11 enhancements (creative tension, execution modes, personality overlays, design craft metrics), and confirm system ready for advanced design and strategic challenges."
+"Activate Fusion v11 Complete with PRP enhancement. Initialize all 15 agents with Product Requirements Planning (PRP) capabilities. Enable trigger phrases like 'write a PRP' and 'let's start a PRP for [project]' for automatic PRP generation."
 ```
 
 ### Option 2: Local Installation
