@@ -1,0 +1,31 @@
+{
+    "version": "1.0",
+    "fallback_history": [],
+    "pattern_stats": {},
+    "last_updated": null,
+    "schema": {
+        "fallback_entry": {
+            "timestamp": "ISO datetime",
+            "original_pattern": "Pattern name",
+            "fallback_pattern": "Pattern name",
+            "confidence_score": "float 0-1",
+            "reasoning": "string",
+            "success": "boolean",
+            "metrics": {
+                "original": {},
+                "fallback": {}
+            }
+        },
+        "pattern_stats": {
+            "pattern_name": {
+                "total_uses": "integer",
+                "fallback_count": "integer",
+                "success_as_fallback": "integer",
+                "avg_confidence": "float 0-1",
+                "common_reasons": [
+                    "string"
+                ]
+            }
+        }
+    }
+}

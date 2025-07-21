@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-07-20T21:28:09.628126",
+  "mode": "ship",
+  "agents": [
+    {
+      "agent": "StrategyPilot",
+      "pattern": "StepwiseInsightSynthesis"
+    },
+    {
+      "agent": "NarrativeArchitect",
+      "pattern": "RoleDirective"
+    },
+    {
+      "agent": "EvaluatorAgent",
+      "pattern": "PatternCritiqueThenRewrite"
+    }
+  ],
+  "input": "Hello"
+}
