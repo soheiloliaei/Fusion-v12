@@ -1,0 +1,149 @@
+{
+    "version": "12.0",
+    "system": {
+        "memory_thresholds": {
+            "pattern_history_size": 1000,
+            "chain_history_size": 100,
+            "min_data_points": 5
+        },
+        "safety": {
+            "pattern_safety": true,
+            "input_validation": true,
+            "output_sanitization": true
+        },
+        "logging": {
+            "fallback_logging": true,
+            "metrics_logging": true,
+            "chain_logging": true
+        }
+    },
+    "patterns": {
+        "default_patterns": {
+            "StrategyPilot": "StepwiseInsightSynthesis",
+            "NarrativeArchitect": "RoleDirective",
+            "EvaluatorAgent": "PatternCritiqueThenRewrite"
+        },
+        "fallback_thresholds": {
+            "StepwiseInsightSynthesis": 0.7,
+            "RoleDirective": 0.75,
+            "PatternCritiqueThenRewrite": 0.8,
+            "RiskLens": 0.75,
+            "PersonaFramer": 0.7,
+            "SignalExtractor": 0.75,
+            "InversePattern": 0.7,
+            "ReductionistPrompt": 0.75,
+            "StyleTransformer": 0.7,
+            "PatternAmplifier": 0.8
+        },
+        "safety_settings": {
+            "StepwiseInsightSynthesis": true,
+            "RoleDirective": true,
+            "PatternCritiqueThenRewrite": true,
+            "RiskLens": true,
+            "PersonaFramer": true,
+            "SignalExtractor": true,
+            "InversePattern": true,
+            "ReductionistPrompt": true,
+            "StyleTransformer": true,
+            "PatternAmplifier": true
+        }
+    },
+    "execution_modes": {
+        "simulate": {
+            "tone": "exploratory",
+            "innovation_weight": 1.2,
+            "clarity_weight": 0.8,
+            "critique_threshold": 0.6,
+            "default_patterns": {
+                "StrategyPilot": "StepwiseInsightSynthesis",
+                "NarrativeArchitect": "PersonaFramer",
+                "EvaluatorAgent": "SignalExtractor"
+            }
+        },
+        "ship": {
+            "tone": "precise",
+            "innovation_weight": 0.8,
+            "clarity_weight": 1.2,
+            "critique_threshold": 0.8,
+            "default_patterns": {
+                "StrategyPilot": "RiskLens",
+                "NarrativeArchitect": "StyleTransformer",
+                "EvaluatorAgent": "PatternCritiqueThenRewrite"
+            }
+        },
+        "critique": {
+            "tone": "analytical",
+            "innovation_weight": 0.9,
+            "clarity_weight": 1.1,
+            "critique_threshold": 0.9,
+            "default_patterns": {
+                "StrategyPilot": "InversePattern",
+                "NarrativeArchitect": "ReductionistPrompt",
+                "EvaluatorAgent": "PatternCritiqueThenRewrite"
+            }
+        }
+    },
+    "agents": {
+        "StrategyPilot": {
+            "base_config": {
+                "innovation_bias": 1.0,
+                "practicality_bias": 1.0,
+                "step_depth": "medium"
+            },
+            "metrics_focus": [
+                "innovation_score",
+                "feasibility_score",
+                "clarity_score"
+            ]
+        },
+        "NarrativeArchitect": {
+            "base_config": {
+                "creativity_bias": 1.0,
+                "structure_bias": 1.0,
+                "domain": "block"
+            },
+            "metrics_focus": [
+                "clarity_score",
+                "block_relevance",
+                "completeness_score"
+            ]
+        },
+        "EvaluatorAgent": {
+            "base_config": {
+                "critique_depth": "high",
+                "strictness_bias": 1.0,
+                "focus": "quality"
+            },
+            "metrics_focus": [
+                "technical_accuracy",
+                "completeness_score",
+                "actionability_score"
+            ]
+        }
+    },
+    "chain_templates": {
+        "default_template": "strategy",
+        "max_iterations": {
+            "simulate": 3,
+            "ship": 2,
+            "critique": 4
+        },
+        "success_criteria": {
+            "simulate": {
+                "innovation_score": 0.7,
+                "feasibility_score": 0.6,
+                "clarity_score": 0.7
+            },
+            "ship": {
+                "clarity_score": 0.9,
+                "completeness_score": 0.85,
+                "technical_accuracy": 0.9
+            },
+            "critique": {
+                "critique_depth": 0.9,
+                "actionability": 0.85,
+                "completeness": 0.8
+            }
+        }
+    }
+}
