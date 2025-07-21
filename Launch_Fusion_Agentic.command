@@ -1,11 +1,29 @@
 #!/bin/bash
-# Fusion v11.2 Auto-Play Launcher
-# Handles setup, verification, and launch of the pattern-driven system
+# Fusion v11.2 Self-Contained Launcher
+# Downloads and sets up all required components
 
 cd "$(dirname "$0")"
 
 echo "🚀 Fusion v11.2 Auto-Play System"
 echo "================================"
+
+# GitHub repository information
+REPO_OWNER="soheiloliaei"
+REPO_NAME="fusion-v11"
+BRANCH="main"
+BASE_URL="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$BRANCH"
+
+# Required files to download
+declare -A FILES=(
+    ["prompt_patterns.py"]="prompt_patterns.py"
+    ["prompt_pattern_registry.py"]="prompt_pattern_registry.py"
+    ["fusion_v11_agents_complete.py"]="fusion_v11_agents_complete.py"
+    ["evaluator_metrics.py"]="evaluator_metrics.py"
+    ["agent_chain.py"]="agent_chain.py"
+    ["fusion_v11_knowledge_base.json"]="fusion_v11_knowledge_base.json"
+    ["fusion.py"]="fusion.py"
+    ["requirements.txt"]="requirements.txt"
+)
 
 # Check Python installation
 if ! command -v python3 &> /dev/null; then
@@ -22,35 +40,25 @@ fi
 # Activate virtual environment
 source venv/bin/activate
 
+# Download required files
+echo "📥 Downloading required files..."
+for local_file in "${!FILES[@]}"; do
+    remote_file="${FILES[$local_file]}"
+    echo "Downloading $remote_file..."
+    curl -s -o "$local_file" "$BASE_URL/$remote_file"
+    if [ $? -ne 0 ]; then
+        echo "❌ Failed to download $remote_file"
+        exit 1
+    fi
+done
+
+# Make fusion.py executable
+chmod +x fusion.py
+
 # Install dependencies
 echo "📚 Installing dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
-
-# Verify system components
-echo "🔍 Verifying system components..."
-
-REQUIRED_FILES=(
-    "prompt_patterns.py"
-    "prompt_pattern_registry.py"
-    "fusion_v11_agents_complete.py"
-    "evaluator_metrics.py"
-    "agent_chain.py"
-    "fusion_v11_knowledge_base.json"
-)
-
-MISSING_FILES=0
-for file in "${REQUIRED_FILES[@]}"; do
-    if [ ! -f "$file" ]; then
-        echo "❌ Missing required file: $file"
-        MISSING_FILES=1
-    fi
-done
-
-if [ $MISSING_FILES -eq 1 ]; then
-    echo "❌ Some required files are missing. Please ensure all components are present."
-    exit 1
-fi
 
 # Create examples directory if it doesn't exist
 mkdir -p examples
@@ -104,12 +112,12 @@ if [ ! -f "examples/example_chain.json" ]; then
 EOL
 fi
 
+# Create _fusion_todo directory if it doesn't exist
+mkdir -p _fusion_todo
+
 # Run system test
 echo "🧪 Running system test..."
 ./fusion.py chain examples/example_chain.json --input examples/test_input.txt --adaptive
-
-# Create _fusion_todo directory if it doesn't exist
-mkdir -p _fusion_todo
 
 # Show menu
 echo ""
@@ -138,7 +146,7 @@ case $choice in
         ;;
     4)
         echo "📚 Opening documentation..."
-        cat ChatGPT_Upload_v11.2/README.md
+        curl -s "$BASE_URL/ChatGPT_Upload_v11.2/README.md"
         ;;
     5)
         echo "👋 Goodbye!"
