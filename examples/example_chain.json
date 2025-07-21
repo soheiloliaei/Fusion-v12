@@ -1,0 +1,24 @@
+[
+    {
+        "agent": "StrategyPilot",
+        "pattern": "StepwiseInsightSynthesis",
+        "tension_type": "innovation_vs_feasibility",
+        "metrics_threshold": 0.8
+    },
+    {
+        "agent": "NarrativeArchitect",
+        "pattern": "RoleDirective",
+        "context": {
+            "role": "Support Design Lead",
+            "domain": "block",
+            "industry": "fintech"
+        },
+        "metrics_threshold": 0.85
+    },
+    {
+        "agent": "EvaluatorAgent",
+        "pattern": "PatternCritiqueThenRewrite",
+        "tension_type": "user_vs_business",
+        "metrics_threshold": 0.9
+    }
+]

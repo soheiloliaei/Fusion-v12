@@ -1,0 +1,805 @@
+{
+    "version": "11.0",
+    "title": "Fusion v11 Complete Knowledge Base",
+    "description": "Comprehensive knowledge base integrating v10 foundation with v11 enhancements",
+    "last_updated": "2025-01-15T00:00:00Z",
+    "foundation": {
+        "v10_base": "Complete v10 knowledge base with human-centric AI patterns",
+        "v11_enhancements": "Creative tension pairing, execution modes, personality overlays, design craft metrics"
+    },
+    "knowledge_sources": [
+        {
+            "title": "Mastering AI Agents",
+            "author": "Marcus Lighthaven",
+            "focus": "autonomous_systems",
+            "confidence": 0.95,
+            "v11_relevance": "Core agent architecture and orchestration"
+        },
+        {
+            "title": "Designing Human-Centric AI",
+            "author": "Akshay Kore",
+            "focus": "human_ai_interaction",
+            "confidence": 0.92,
+            "v11_relevance": "Trust orchestration and personality overlays"
+        },
+        {
+            "title": "AI and UX",
+            "author": "Gavin Lew, Robert Schumacher",
+            "focus": "ai_user_experience",
+            "confidence": 0.90,
+            "v11_relevance": "Design craft metrics and user experience optimization"
+        },
+        {
+            "title": "Designing Agentive Technology",
+            "author": "Christopher Noessel",
+            "focus": "agent_design_patterns",
+            "confidence": 0.88,
+            "v11_relevance": "Creative tension pairing and execution modes"
+        },
+        {
+            "title": "Building AI-Powered Products",
+            "author": "Marily Nika",
+            "focus": "ai_product_management",
+            "confidence": 0.85,
+            "v11_relevance": "Strategic frameworks and business integration"
+        },
+        {
+            "title": "How to Build Your Career in AI",
+            "author": "Andrew Ng",
+            "focus": "ai_development_methodology",
+            "confidence": 0.98,
+            "v11_relevance": "System architecture and development best practices"
+        }
+    ],
+    "v10_core_concepts": {
+        "agent_architecture": {
+            "total_agents": 11,
+            "core_agents": [
+                {
+                    "id": "PromptEngineer",
+                    "role": "Tags input, compresses idea, proposes routing tags, tracks belief & uncertainty",
+                    "capabilities": [
+                        "ingest_context",
+                        "ambiguity_detection",
+                        "tagging",
+                        "compression"
+                    ],
+                    "quality_target": 0.98,
+                    "v11_enhancements": "4-layer ambiguity detection, enhanced precision targeting"
+                },
+                {
+                    "id": "Dispatcher",
+                    "role": "Maps tags→agents, enforces debate & fallback, logs trust chain",
+                    "capabilities": [
+                        "routing",
+                        "debate_orchestration",
+                        "validation"
+                    ],
+                    "quality_target": 0.97,
+                    "v11_enhancements": "Enhanced routing with creative tension awareness"
+                },
+                {
+                    "id": "DesignTechnologist",
+                    "role": "Generates component/Framer/UI code prompts, runs self-check",
+                    "capabilities": [
+                        "ux_flow_mapping",
+                        "component_prompting",
+                        "self_reflection"
+                    ],
+                    "quality_target": 0.90,
+                    "v11_enhancements": "Design craft metrics integration, personality-aware components"
+                },
+                {
+                    "id": "CreativeDirector",
+                    "role": "Crafts copy/visuals with meta-reflection on tone & bias",
+                    "capabilities": [
+                        "tone_design",
+                        "bias_check",
+                        "self_reflection"
+                    ],
+                    "quality_target": 0.88,
+                    "v11_enhancements": "Personality overlay application, creative tension balancing"
+                },
+                {
+                    "id": "InsightsSynthesizer",
+                    "role": "Surfaces insights, logs reasoning trail",
+                    "capabilities": [
+                        "pattern_detection",
+                        "clustering",
+                        "trail_logging"
+                    ],
+                    "quality_target": 0.92,
+                    "v11_enhancements": "Strategic framework integration, enhanced pattern recognition"
+                },
+                {
+                    "id": "NarrativeArchitect",
+                    "role": "Builds story arc, runs self-check & chain-of-critique",
+                    "capabilities": [
+                        "story_mapping",
+                        "critique_chain"
+                    ],
+                    "quality_target": 0.93,
+                    "v11_enhancements": "Personality-driven narratives, creative tension storytelling"
+                },
+                {
+                    "id": "DesignMaestro",
+                    "role": "Analyzes journeys, flags trust breaks, logs reasoning",
+                    "capabilities": [
+                        "journey_mapping",
+                        "friction_detection",
+                        "trail_logging"
+                    ],
+                    "quality_target": 0.90,
+                    "v11_enhancements": "Design craft metrics, execution mode optimization"
+                },
+                {
+                    "id": "StrategyPilot",
+                    "role": "Generates strategy options, engages in debate when needed",
+                    "capabilities": [
+                        "strategic_mapping",
+                        "debate_participation"
+                    ],
+                    "quality_target": 0.89,
+                    "v11_enhancements": "Strategic framework application, personality-driven strategies"
+                },
+                {
+                    "id": "CriticalDesignAdvisor",
+                    "role": "Independently critiques, enforces audit rules",
+                    "capabilities": [
+                        "assumption_detection",
+                        "audit_rule_enforcement"
+                    ],
+                    "quality_target": 0.94,
+                    "v11_enhancements": "Creative tension critique, execution mode validation"
+                },
+                {
+                    "id": "VPDesign",
+                    "role": "Final review: schema, tone, confidence, trend alignment",
+                    "capabilities": [
+                        "schema_validation",
+                        "trend_alignment",
+                        "final_approval"
+                    ],
+                    "quality_target": 1.00,
+                    "v11_enhancements": "Design craft metrics validation, personality coherence check"
+                },
+                {
+                    "id": "EvaluatorAgent",
+                    "role": "Autonomously scores each handoff against rubrics",
+                    "capabilities": [
+                        "self_evaluation",
+                        "leaderboard_scoring"
+                    ],
+                    "quality_target": 0.95,
+                    "v11_enhancements": "V11 metrics evaluation, creative tension scoring"
+                }
+            ]
+        },
+        "enhancement_agents": {
+            "total_agents": 4,
+            "agents": [
+                {
+                    "id": "TrustOrchestrator",
+                    "role": "Manages trust calibration across all agent interactions",
+                    "capabilities": [
+                        "trust_assessment",
+                        "calibration",
+                        "handoff_recommendation"
+                    ],
+                    "quality_target": 0.90,
+                    "v11_integration": "Core trust system for all v11 enhancements"
+                },
+                {
+                    "id": "BiasAuditor",
+                    "role": "Continuous bias detection and mitigation for all agent outputs",
+                    "capabilities": [
+                        "bias_detection",
+                        "mitigation",
+                        "pattern_tracking"
+                    ],
+                    "quality_target": 0.95,
+                    "v11_integration": "Bias monitoring across personality overlays and creative tensions"
+                },
+                {
+                    "id": "AdaptationEngine",
+                    "role": "Personalizes agent behavior based on user preferences",
+                    "capabilities": [
+                        "user_profiling",
+                        "personalization",
+                        "adaptive_learning"
+                    ],
+                    "quality_target": 0.85,
+                    "v11_integration": "User adaptation for execution modes and personality overlays"
+                },
+                {
+                    "id": "ExplainabilityMaestro",
+                    "role": "Generates clear explanations for AI decisions and reasoning",
+                    "capabilities": [
+                        "explanation_generation",
+                        "decision_analysis",
+                        "transparency"
+                    ],
+                    "quality_target": 0.90,
+                    "v11_integration": "Enhanced explanations for creative tension decisions"
+                }
+            ]
+        }
+    },
+    "v11_enhancements": {
+        "creative_tension_pairing": {
+            "description": "System for balancing competing design forces",
+            "tension_types": [
+                {
+                    "type": "vision_vs_execution",
+                    "description": "Balance between ambitious vision and practical execution",
+                    "application": "Strategic planning and implementation phases",
+                    "metrics": [
+                        "vision_ambition_score",
+                        "execution_feasibility_score",
+                        "balance_quality"
+                    ]
+                },
+                {
+                    "type": "innovation_vs_practicality",
+                    "description": "Balance between innovative solutions and practical constraints",
+                    "application": "Design and development decisions",
+                    "metrics": [
+                        "innovation_score",
+                        "practicality_score",
+                        "implementation_risk"
+                    ]
+                },
+                {
+                    "type": "user_needs_vs_business_goals",
+                    "description": "Balance between user satisfaction and business objectives",
+                    "application": "Product strategy and feature prioritization",
+                    "metrics": [
+                        "user_satisfaction_score",
+                        "business_impact_score",
+                        "alignment_quality"
+                    ]
+                },
+                {
+                    "type": "simplicity_vs_functionality",
+                    "description": "Balance between simple user experience and feature richness",
+                    "application": "Interface design and feature planning",
+                    "metrics": [
+                        "simplicity_score",
+                        "functionality_score",
+                        "usability_balance"
+                    ]
+                },
+                {
+                    "type": "speed_vs_quality",
+                    "description": "Balance between rapid delivery and quality assurance",
+                    "application": "Development and delivery processes",
+                    "metrics": [
+                        "delivery_speed",
+                        "quality_score",
+                        "risk_assessment"
+                    ]
+                },
+                {
+                    "type": "creativity_vs_constraints",
+                    "description": "Balance between creative freedom and project constraints",
+                    "application": "Creative processes and resource management",
+                    "metrics": [
+                        "creativity_score",
+                        "constraint_adherence",
+                        "feasibility_score"
+                    ]
+                },
+                {
+                    "type": "data_vs_intuition",
+                    "description": "Balance between data-driven decisions and intuitive insights",
+                    "application": "Decision making and strategy development",
+                    "metrics": [
+                        "data_confidence",
+                        "intuition_strength",
+                        "decision_quality"
+                    ]
+                }
+            ]
+        },
+        "execution_modes": {
+            "description": "Different operational modes for various use cases",
+            "modes": [
+                {
+                    "mode": "simulate",
+                    "description": "Simulation mode for testing and exploration",
+                    "use_cases": [
+                        "Prototype validation",
+                        "Risk assessment",
+                        "Scenario planning"
+                    ],
+                    "characteristics": [
+                        "Safe testing environment",
+                        "Rapid iteration",
+                        "No real-world impact"
+                    ],
+                    "agent_behavior": "Exploratory and experimental approach"
+                },
+                {
+                    "mode": "ship",
+                    "description": "Production mode for real-world deployment",
+                    "use_cases": [
+                        "Live product delivery",
+                        "Customer-facing features",
+                        "Production systems"
+                    ],
+                    "characteristics": [
+                        "High reliability",
+                        "Quality assurance",
+                        "Real-world impact"
+                    ],
+                    "agent_behavior": "Conservative and validated approach"
+                },
+                {
+                    "mode": "critique",
+                    "description": "Critical analysis mode for evaluation and improvement",
+                    "use_cases": [
+                        "Design review",
+                        "Quality assessment",
+                        "Improvement identification"
+                    ],
+                    "characteristics": [
+                        "Analytical focus",
+                        "Constructive feedback",
+                        "Improvement orientation"
+                    ],
+                    "agent_behavior": "Critical and analytical approach"
+                },
+                {
+                    "mode": "advisory_board",
+                    "description": "Strategic advisory mode for high-level guidance",
+                    "use_cases": [
+                        "Strategic planning",
+                        "Executive decision support",
+                        "Long-term vision"
+                    ],
+                    "characteristics": [
+                        "Strategic perspective",
+                        "Executive-level insights",
+                        "Long-term focus"
+                    ],
+                    "agent_behavior": "Strategic and visionary approach"
+                }
+            ]
+        },
+        "personality_overlays": {
+            "description": "Personality-driven perspectives for enhanced decision making",
+            "personalities": [
+                {
+                    "personality": "jobs",
+                    "name": "Steve Jobs",
+                    "framework": "First principles thinking with user-centric focus",
+                    "characteristics": [
+                        "User experience obsession",
+                        "Simplicity focus",
+                        "Innovation drive"
+                    ],
+                    "application": "Product design and user experience optimization",
+                    "decision_patterns": [
+                        "What would delight users?",
+                        "How can we simplify?",
+                        "What's the essential core?"
+                    ]
+                },
+                {
+                    "personality": "hormozi",
+                    "name": "Alex Hormozi",
+                    "framework": "Value-driven with clear ROI focus",
+                    "characteristics": [
+                        "Value maximization",
+                        "ROI optimization",
+                        "Practical business focus"
+                    ],
+                    "application": "Business strategy and value proposition development",
+                    "decision_patterns": [
+                        "What's the measurable value?",
+                        "How does this impact ROI?",
+                        "What's the practical benefit?"
+                    ]
+                },
+                {
+                    "personality": "godin",
+                    "name": "Seth Godin",
+                    "framework": "Permission-based with community focus",
+                    "characteristics": [
+                        "Community building",
+                        "Permission marketing",
+                        "Authentic engagement"
+                    ],
+                    "application": "Marketing strategy and community engagement",
+                    "decision_patterns": [
+                        "How do we earn permission?",
+                        "What serves the community?",
+                        "How do we create authentic value?"
+                    ]
+                },
+                {
+                    "personality": "brown",
+                    "name": "Brené Brown",
+                    "framework": "Vulnerability and authenticity focus",
+                    "characteristics": [
+                        "Authentic communication",
+                        "Emotional intelligence",
+                        "Human connection"
+                    ],
+                    "application": "Communication strategy and human-centered design",
+                    "decision_patterns": [
+                        "How can we be more authentic?",
+                        "What builds genuine connection?",
+                        "How do we honor vulnerability?"
+                    ]
+                },
+                {
+                    "personality": "sinek",
+                    "name": "Simon Sinek",
+                    "framework": "Why-driven with purpose focus",
+                    "characteristics": [
+                        "Purpose-driven thinking",
+                        "Why-first approach",
+                        "Inspirational leadership"
+                    ],
+                    "application": "Vision development and purpose-driven strategy",
+                    "decision_patterns": [
+                        "What's our why?",
+                        "How does this serve our purpose?",
+                        "What inspires action?"
+                    ]
+                }
+            ]
+        },
+        "design_craft_metrics": {
+            "description": "Comprehensive metrics for design quality assessment",
+            "metrics": [
+                {
+                    "metric": "innovation_score",
+                    "description": "Measure of novelty and creative thinking",
+                    "calculation": "Novelty × Usefulness × Implementation_Quality",
+                    "target_range": [
+                        0.7,
+                        1.0
+                    ],
+                    "evaluation_criteria": [
+                        "Originality",
+                        "Creative problem solving",
+                        "Novel approach"
+                    ]
+                },
+                {
+                    "metric": "design_quality",
+                    "description": "Overall design excellence and craftsmanship",
+                    "calculation": "Aesthetics × Functionality × Usability × Accessibility",
+                    "target_range": [
+                        0.8,
+                        1.0
+                    ],
+                    "evaluation_criteria": [
+                        "Visual design",
+                        "Interaction design",
+                        "Design system adherence"
+                    ]
+                },
+                {
+                    "metric": "user_experience",
+                    "description": "Quality of user experience and satisfaction",
+                    "calculation": "Usability × Accessibility × Delight × Efficiency",
+                    "target_range": [
+                        0.8,
+                        1.0
+                    ],
+                    "evaluation_criteria": [
+                        "User satisfaction",
+                        "Task completion",
+                        "Emotional response"
+                    ]
+                },
+                {
+                    "metric": "technical_feasibility",
+                    "description": "Practicality and implementability of design",
+                    "calculation": "Implementation_Complexity × Resource_Requirements × Technical_Risk",
+                    "target_range": [
+                        0.7,
+                        1.0
+                    ],
+                    "evaluation_criteria": [
+                        "Development complexity",
+                        "Resource requirements",
+                        "Technical constraints"
+                    ]
+                },
+                {
+                    "metric": "business_impact",
+                    "description": "Potential business value and strategic alignment",
+                    "calculation": "Business_Value × Strategic_Alignment × Market_Potential",
+                    "target_range": [
+                        0.6,
+                        1.0
+                    ],
+                    "evaluation_criteria": [
+                        "Revenue potential",
+                        "Strategic fit",
+                        "Market opportunity"
+                    ]
+                }
+            ]
+        },
+        "strategic_frameworks": {
+            "description": "Strategic thinking frameworks for enhanced decision making",
+            "frameworks": [
+                {
+                    "framework": "jobs_thinking",
+                    "description": "Jobs-to-be-done framework for user-centric strategy",
+                    "application": "Product development and user experience design",
+                    "key_questions": [
+                        "What job is the user trying to get done?",
+                        "What are the functional and emotional needs?",
+                        "What are the constraints and context?"
+                    ]
+                },
+                {
+                    "framework": "first_principles",
+                    "description": "First principles thinking for fundamental problem solving",
+                    "application": "Innovation and complex problem solving",
+                    "key_questions": [
+                        "What are the fundamental truths?",
+                        "What assumptions can we challenge?",
+                        "How can we build from the ground up?"
+                    ]
+                },
+                {
+                    "framework": "user_story_mapping",
+                    "description": "User story mapping for feature prioritization",
+                    "application": "Product planning and feature development",
+                    "key_questions": [
+                        "What's the user journey?",
+                        "What are the key activities?",
+                        "What's the minimum viable experience?"
+                    ]
+                },
+                {
+                    "framework": "design_thinking",
+                    "description": "Human-centered design process",
+                    "application": "Problem solving and innovation",
+                    "key_questions": [
+                        "What do users really need?",
+                        "How might we solve this?",
+                        "What can we prototype and test?"
+                    ]
+                },
+                {
+                    "framework": "lean_startup",
+                    "description": "Build-measure-learn methodology",
+                    "application": "Product development and validation",
+                    "key_questions": [
+                        "What's our hypothesis?",
+                        "How can we test quickly?",
+                        "What did we learn?"
+                    ]
+                },
+                {
+                    "framework": "systems_thinking",
+                    "description": "Holistic approach to complex systems",
+                    "application": "System design and optimization",
+                    "key_questions": [
+                        "What are the system dynamics?",
+                        "Where are the leverage points?",
+                        "What are the unintended consequences?"
+                    ]
+                },
+                {
+                    "framework": "behavioral_economics",
+                    "description": "Understanding human decision-making patterns",
+                    "application": "User behavior design and optimization",
+                    "key_questions": [
+                        "What cognitive biases are at play?",
+                        "How do people actually make decisions?",
+                        "What nudges can help users?"
+                    ]
+                }
+            ]
+        }
+    },
+    "human_centric_patterns": {
+        "trust_building": [
+            {
+                "pattern": "confidence_indicators",
+                "description": "Display AI confidence levels clearly",
+                "v11_enhancement": "Personality-aware confidence communication",
+                "implementation": "Trust orchestrator with personality overlay"
+            },
+            {
+                "pattern": "reasoning_transparency",
+                "description": "Show why AI made specific decisions",
+                "v11_enhancement": "Creative tension reasoning explanation",
+                "implementation": "Enhanced explainability with tension analysis"
+            },
+            {
+                "pattern": "human_override",
+                "description": "Always allow human to override AI decisions",
+                "v11_enhancement": "Context-aware override recommendations",
+                "implementation": "Execution mode-specific override patterns"
+            },
+            {
+                "pattern": "progressive_capability",
+                "description": "Reveal AI features gradually",
+                "v11_enhancement": "Personality-driven capability disclosure",
+                "implementation": "Adaptive user experience with personality overlays"
+            }
+        ],
+        "collaboration_modes": [
+            {
+                "mode": "human_in_loop",
+                "description": "Human validates each AI decision",
+                "v11_enhancement": "Execution mode determines validation level",
+                "application": "Critical decisions in ship mode"
+            },
+            {
+                "mode": "human_on_loop",
+                "description": "Human monitors AI with intervention capability",
+                "v11_enhancement": "Creative tension alerts for human attention",
+                "application": "Balanced oversight with tension monitoring"
+            },
+            {
+                "mode": "human_out_loop",
+                "description": "AI operates autonomously with human oversight",
+                "v11_enhancement": "Personality-consistent autonomous behavior",
+                "application": "Routine tasks with personality alignment"
+            }
+        ],
+        "error_handling": [
+            {
+                "type": "graceful_degradation",
+                "description": "Reduce functionality rather than fail completely",
+                "v11_enhancement": "Execution mode-specific degradation strategies",
+                "implementation": "Mode-aware fallback mechanisms"
+            },
+            {
+                "type": "error_explanation",
+                "description": "Explain what went wrong and why",
+                "v11_enhancement": "Personality-appropriate error communication",
+                "implementation": "Personality overlay for error messaging"
+            },
+            {
+                "type": "recovery_suggestion",
+                "description": "Provide clear next steps for users",
+                "v11_enhancement": "Strategic framework-based recovery paths",
+                "implementation": "Framework-driven recovery recommendations"
+            }
+        ]
+    },
+    "glossary": [
+        {
+            "term": "belief_state",
+            "definition": "Agent's current assumptions and confidence level",
+            "v11_context": "Enhanced with personality overlay influence"
+        },
+        {
+            "term": "uncertainty_flag",
+            "definition": "True if agent unsure, triggers fallback mechanisms",
+            "v11_context": "Integrated with creative tension detection"
+        },
+        {
+            "term": "reasoning_trail",
+            "definition": "Step-by-step inference log for transparency",
+            "v11_context": "Includes personality and tension reasoning"
+        },
+        {
+            "term": "creative_tension",
+            "definition": "Balanced consideration of competing design forces",
+            "v11_context": "Core v11 concept for enhanced decision making"
+        },
+        {
+            "term": "execution_mode",
+            "definition": "Operational mode determining agent behavior patterns",
+            "v11_context": "V11 system for context-appropriate behavior"
+        },
+        {
+            "term": "personality_overlay",
+            "definition": "Personality-driven perspective applied to decision making",
+            "v11_context": "V11 enhancement for diverse thinking approaches"
+        },
+        {
+            "term": "design_craft_metrics",
+            "definition": "Comprehensive quality assessment for design work",
+            "v11_context": "V11 metrics system for design excellence"
+        },
+        {
+            "term": "strategic_framework",
+            "definition": "Structured approach to strategic thinking and planning",
+            "v11_context": "V11 enhancement for strategic decision support"
+        },
+        {
+            "term": "trust_calibration",
+            "definition": "Alignment between AI confidence and user trust required",
+            "v11_context": "Enhanced with personality-aware trust building"
+        },
+        {
+            "term": "bias_auditing",
+            "definition": "Systematic detection and mitigation of AI bias",
+            "v11_context": "Extended to personality and tension bias monitoring"
+        }
+    ],
+    "integration_patterns": {
+        "v10_to_v11_enhancement": {
+            "description": "How v10 capabilities are enhanced with v11 systems",
+            "patterns": [
+                {
+                    "v10_capability": "Agent execution",
+                    "v11_enhancement": "Execution mode awareness",
+                    "integration": "Agents adapt behavior based on execution mode"
+                },
+                {
+                    "v10_capability": "Decision making",
+                    "v11_enhancement": "Creative tension balancing",
+                    "integration": "Decisions consider and balance competing forces"
+                },
+                {
+                    "v10_capability": "Output generation",
+                    "v11_enhancement": "Personality overlay application",
+                    "integration": "Outputs reflect personality-driven perspectives"
+                },
+                {
+                    "v10_capability": "Quality assessment",
+                    "v11_enhancement": "Design craft metrics",
+                    "integration": "Comprehensive quality evaluation with design metrics"
+                },
+                {
+                    "v10_capability": "Strategic thinking",
+                    "v11_enhancement": "Strategic framework application",
+                    "integration": "Strategic decisions use structured frameworks"
+                }
+            ]
+        }
+    },
+    "compliance_and_governance": {
+        "compliance_policies": [
+            {
+                "id": "data_retention",
+                "description": "Records retained ≥90 days",
+                "rule": "created_at+90d<=now()",
+                "v11_extension": "Includes personality and tension data"
+            },
+            {
+                "id": "access_control",
+                "description": "Role-based access enforced",
+                "rule": "user_role in allowed_roles",
+                "v11_extension": "Personality overlay access controls"
+            },
+            {
+                "id": "transparency_requirement",
+                "description": "AI decisions must be explainable",
+                "rule": "explainability_score>=0.7",
+                "v11_extension": "Includes creative tension and personality reasoning"
+            },
+            {
+                "id": "bias_monitoring",
+                "description": "Continuous bias detection required",
+                "rule": "bias_score<=0.1",
+                "v11_extension": "Extended to personality and tension bias"
+            }
+        ],
+        "audit_rules": [
+            {
+                "id": "v11_enhancement_audit",
+                "description": "Verify v11 enhancements are properly applied",
+                "pattern": "execution_mode AND (personality_overlay OR creative_tension)",
+                "v11_specific": true
+            },
+            {
+                "id": "design_craft_validation",
+                "description": "Ensure design craft metrics are calculated",
+                "pattern": "design_craft_metrics.innovation_score >= 0.7",
+                "v11_specific": true
+            },
+            {
+                "id": "creative_tension_balance",
+                "description": "Verify creative tensions are properly balanced",
+                "pattern": "creative_tension_analysis.balance_quality >= 0.8",
+                "v11_specific": true
+            }
+        ]
+    }
+}
