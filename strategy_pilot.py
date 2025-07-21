@@ -1,0 +1,1 @@
+preferred_patterns = ["StepwiseInsightSynthesis", "PatternCritiqueThenRewrite"] 

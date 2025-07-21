@@ -10,6 +10,7 @@ import re
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from prompt_pattern_registry import get_pattern_by_name
 
 # Base Agent Class
 class BaseAgent(ABC):
@@ -128,6 +129,11 @@ class PromptEngineer(BaseAgent):
             "uncertainty_flag": self.uncertainty_flag,
             "reasoning_trail": self.reasoning_trail
         }
+    
+    def apply_prompt_pattern(self, pattern_name: str, task: str, context: dict) -> str:
+        """Apply a named prompt pattern to the given task and context."""
+        pattern = get_pattern_by_name(pattern_name)
+        return pattern.apply(task, context)
     
     def _detect_ambiguity(self, text: str) -> Dict[str, Any]:
         """4-layer ambiguity detection: lexical, syntactic, semantic, pragmatic."""
@@ -325,23 +331,37 @@ class Dispatcher(BaseAgent):
         prompt_logic = inputs.get('prompt_logic', {})
         tags = prompt_logic.get('tags', [])
         ambiguity_score = inputs.get('ambiguity_score', 0.0)
-        
+        user_task = inputs.get('user_task', '')
+        context = inputs.get('context', {})
+
         # Self-check
         self.self_check("Are the routing rules appropriate for these tags?")
-        
+
         # Check if debate is needed
         debate_required = self._should_invoke_debate(tags, ambiguity_score)
-        
+
         # Route to agents
         selected_agents = self._route_to_agents(tags)
-        
+
         # Add fallback agent
         if self.fallback_agent not in selected_agents:
             selected_agents.append(self.fallback_agent)
-        
+
+        # Apply prompt pattern if agent has preferred_patterns
+        engineer = PromptEngineer()
+        agent_prompts = {}
+        for agent_name in selected_agents:
+            agent_module = __import__(agent_name.lower()) if agent_name.lower() in globals() else None
+            preferred_patterns = getattr(agent_module, 'preferred_patterns', None) if agent_module else None
+            if preferred_patterns:
+                pattern = preferred_patterns[0]
+                agent_prompts[agent_name] = engineer.apply_prompt_pattern(pattern, user_task, context)
+            else:
+                agent_prompts[agent_name] = user_task
+
         # Create trust chain
         trust_chain = self._create_trust_chain(tags, selected_agents, debate_required)
-        
+
         # Log metrics
         self.log_metrics({
             "routing_accuracy": self._calculate_routing_accuracy(tags, selected_agents),
@@ -349,7 +369,7 @@ class Dispatcher(BaseAgent):
             "debate_invoked": debate_required,
             "trust_chain_length": len(trust_chain)
         })
-        
+
         return {
             "selected_agents": selected_agents,
             "debate_required": debate_required,
@@ -357,7 +377,8 @@ class Dispatcher(BaseAgent):
             "trust_chain": trust_chain,
             "routing_confidence": self._calculate_routing_confidence(tags),
             "fallback_agent": self.fallback_agent,
-            "reasoning_trail": self.reasoning_trail
+            "reasoning_trail": self.reasoning_trail,
+            "agent_prompts": agent_prompts
         }
     
     def _should_invoke_debate(self, tags: List[str], ambiguity_score: float) -> bool:
