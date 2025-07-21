@@ -1,19 +1,21 @@
 #!/bin/bash
-# Fusion v11.2 Self-Contained Launcher
+# Fusion v12.0 Self-Contained Launcher
 # Downloads and sets up all required components
 
+# Create working directory
 cd "$(dirname "$0")"
+FUSION_DIR="$(pwd)"
 
-echo "🚀 Fusion v11.2 Auto-Play System"
+echo "🚀 Fusion v12.0 Auto-Play System"
 echo "================================"
 
-# GitHub repository information
+# Configuration
 REPO_OWNER="soheiloliaei"
 REPO_NAME="fusion-v11"
 BRANCH="main"
 BASE_URL="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$BRANCH"
 
-# Required files to download
+# Required files
 declare -a FILES=(
     "prompt_patterns.py"
     "prompt_pattern_registry.py"
@@ -23,8 +25,15 @@ declare -a FILES=(
     "fusion_v11_knowledge_base.json"
     "fusion_cli.py"
     "memory_registry.py"
+    "input_transformer.py"
+    "execution_mode_map.py"
+    "fusion_v12_config.json"
     "requirements.txt"
 )
+
+# Create workspace structure
+mkdir -p _fusion_todo/{chains,outputs,memory}
+mkdir -p chain_templates
 
 # Check Python installation
 if ! command -v python3 &> /dev/null; then
@@ -32,7 +41,7 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# Create virtual environment if it doesn't exist
+# Create virtual environment
 if [ ! -d "venv" ]; then
     echo "📦 Creating virtual environment..."
     python3 -m venv venv
@@ -41,7 +50,7 @@ fi
 # Activate virtual environment
 source venv/bin/activate
 
-# Download required files
+# Download files
 echo "📥 Downloading required files..."
 for file in "${FILES[@]}"; do
     echo "Downloading $file..."
@@ -52,6 +61,19 @@ for file in "${FILES[@]}"; do
     fi
 done
 
+# Download chain templates
+echo "📥 Downloading chain templates..."
+declare -a TEMPLATES=(
+    "provocation_loop.json"
+    "critique_strategy.json"
+    "rewrite_evolution.json"
+)
+
+for template in "${TEMPLATES[@]}"; do
+    echo "Downloading $template..."
+    curl -s -o "chain_templates/$template" "$BASE_URL/chain_templates/$template"
+done
+
 # Make CLI executable
 chmod +x fusion_cli.py
 
@@ -60,80 +82,87 @@ echo "📚 Installing dependencies..."
 python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
 
-# Create workspace structure
-mkdir -p examples _fusion_todo/{chains,outputs}
-
-# Create example input if it doesn't exist
-if [ ! -f "examples/test_input.txt" ]; then
-    cat > examples/test_input.txt << EOL
-Design a new payment verification flow for Cash App that balances security with user experience. The flow should handle:
-
-1. First-time large transactions
-2. Cross-border payments
-3. Business account verifications
-
-Key requirements:
-- Maintain Block's security standards
-- Minimize user friction
-- Support real-time verification where possible
-- Comply with financial regulations
-
-Consider both customer support implications and technical implementation requirements.
+# Initialize fallback log
+if [ ! -f "_fusion_todo/fallback_log.json" ]; then
+    cat > "_fusion_todo/fallback_log.json" << EOL
+{
+  "version": "1.0",
+  "fallback_history": [],
+  "pattern_stats": {},
+  "last_updated": null
+}
 EOL
 fi
 
 # Show welcome message
 clear
-echo "🎯 Welcome to Fusion v11.2!"
+echo "🎯 Welcome to Fusion v12.0!"
 echo "============================"
 echo ""
 echo "This system helps design and analyze Block's internal tooling solutions."
 echo ""
-echo "Available modes:"
+echo "Available Modes:"
 echo "---------------"
 echo "SIMULATE: For exploring ideas and testing concepts"
 echo "SHIP: For creating production-ready specifications"
 echo "CRITIQUE: For analyzing and improving existing designs"
 echo ""
-echo "Example tasks:"
-echo "-------------"
-echo "1. Design a new payment verification flow"
-echo "2. Analyze Cash App's onboarding experience"
-echo "3. Improve merchant dashboard analytics"
+echo "New Features in v12.0:"
+echo "--------------------"
+echo "• 7 New Patterns (RiskLens, PersonaFramer, etc.)"
+echo "• Execution Mode System"
+echo "• Chain Templates"
+echo "• Pattern Safety & Fallback"
+echo "• Enhanced Metrics"
 echo ""
 
 # Show menu
 echo "Choose an action:"
-echo "1. 🧪 Run example (Payment Verification Flow)"
-echo "2. 🚀 Create new design specification"
+echo "1. 🧪 Run example chain (Payment Verification Flow)"
+echo "2. 🚀 Create new design (with mode selection)"
 echo "3. 🔍 Analyze existing design"
-echo "4. 📚 View documentation"
-echo "5. ❌ Exit"
+echo "4. 📊 Run pattern benchmark"
+echo "5. 📚 View documentation"
+echo "6. ❌ Exit"
 
-read -p "Enter your choice (1-5): " choice
+read -p "Enter your choice (1-6): " choice
 
 case $choice in
     1)
-        echo "🧪 Running example analysis..."
-        echo "Using example: Payment Verification Flow"
-        echo ""
-        ./fusion_cli.py simulate "$(cat examples/test_input.txt)"
+        echo "🧪 Running example chain..."
+        echo "Choose execution mode:"
+        echo "1. SIMULATE (exploratory)"
+        echo "2. SHIP (production)"
+        echo "3. CRITIQUE (analysis)"
+        read -p "Enter mode (1-3): " mode_choice
+        
+        case $mode_choice in
+            1) mode="simulate";;
+            2) mode="ship";;
+            3) mode="critique";;
+            *) 
+                echo "❌ Invalid choice"
+                exit 1
+                ;;
+        esac
+        
+        ./fusion_cli.py chain chain_templates/provocation_loop.json --mode $mode
         ;;
     2)
-        echo "🚀 Creating new design specification..."
-        echo "Available areas:"
+        echo "🚀 Creating new design..."
+        echo "Choose domain:"
         echo "1. Payment Systems"
         echo "2. User Authentication"
         echo "3. Analytics Dashboard"
-        echo "4. Custom Area"
-        read -p "Choose area (1-4): " area
+        echo "4. Custom Domain"
+        read -p "Choose domain (1-4): " domain_choice
         
-        case $area in
-            1) domain="payment systems";;
-            2) domain="user authentication";;
-            3) domain="analytics dashboard";;
+        case $domain_choice in
+            1) domain="payment_systems";;
+            2) domain="user_authentication";;
+            3) domain="analytics_dashboard";;
             4) 
-                read -p "Enter custom area: " domain
+                read -p "Enter custom domain: " domain
                 ;;
             *) 
                 echo "❌ Invalid choice"
@@ -141,23 +170,45 @@ case $choice in
                 ;;
         esac
         
-        echo ""
-        echo "Creating design specification for: $domain"
-        read -p "Enter specific requirements (or press Enter for guided prompts): " requirements
+        echo "Choose execution mode:"
+        echo "1. SIMULATE (exploratory)"
+        echo "2. SHIP (production)"
+        echo "3. CRITIQUE (analysis)"
+        read -p "Enter mode (1-3): " mode_choice
         
-        if [ -z "$requirements" ]; then
-            requirements="Design a new solution for $domain that focuses on:
-1. User experience and accessibility
-2. Security and compliance
-3. Performance and scalability
-4. Integration with existing systems"
-        fi
+        case $mode_choice in
+            1) mode="simulate";;
+            2) mode="ship";;
+            3) mode="critique";;
+            *) 
+                echo "❌ Invalid choice"
+                exit 1
+                ;;
+        esac
         
-        ./fusion_cli.py ship "$requirements"
+        echo "Choose chain template:"
+        echo "1. Provocation Loop (breakthrough thinking)"
+        echo "2. Critique Strategy (deep analysis)"
+        echo "3. Rewrite Evolution (iterative improvement)"
+        read -p "Choose template (1-3): " template_choice
+        
+        case $template_choice in
+            1) template="provocation_loop.json";;
+            2) template="critique_strategy.json";;
+            3) template="rewrite_evolution.json";;
+            *) 
+                echo "❌ Invalid choice"
+                exit 1
+                ;;
+        esac
+        
+        read -p "Enter design requirements: " requirements
+        
+        ./fusion_cli.py chain "chain_templates/$template" --mode $mode --domain "$domain" --text "$requirements"
         ;;
     3)
         echo "🔍 Analyzing existing design..."
-        echo "Enter the design to analyze (paste text and press Ctrl+D when done):"
+        echo "Paste your design text (press Ctrl+D when done):"
         design=$(cat)
         
         if [ -z "$design" ]; then
@@ -165,9 +216,39 @@ case $choice in
             exit 1
         fi
         
-        ./fusion_cli.py critique "$design"
+        ./fusion_cli.py chain chain_templates/critique_strategy.json --mode critique --text "$design"
         ;;
     4)
+        echo "📊 Running pattern benchmark..."
+        echo "Choose pattern to benchmark:"
+        echo "1. StepwiseInsightSynthesis"
+        echo "2. RoleDirective"
+        echo "3. PatternCritiqueThenRewrite"
+        echo "4. RiskLens"
+        echo "5. PersonaFramer"
+        echo "6. All Patterns"
+        read -p "Choose pattern (1-6): " pattern_choice
+        
+        case $pattern_choice in
+            1) pattern="StepwiseInsightSynthesis";;
+            2) pattern="RoleDirective";;
+            3) pattern="PatternCritiqueThenRewrite";;
+            4) pattern="RiskLens";;
+            5) pattern="PersonaFramer";;
+            6) pattern="all";;
+            *) 
+                echo "❌ Invalid choice"
+                exit 1
+                ;;
+        esac
+        
+        if [ "$pattern" = "all" ]; then
+            ./fusion_cli.py benchmark --input examples/test_input.txt
+        else
+            ./fusion_cli.py benchmark --pattern "$pattern" --input examples/test_input.txt
+        fi
+        ;;
+    5)
         echo "📚 Opening documentation..."
         if [ -f "README.md" ]; then
             cat README.md
@@ -175,7 +256,7 @@ case $choice in
             curl -s "$BASE_URL/README.md"
         fi
         ;;
-    5)
+    6)
         echo "👋 Goodbye!"
         exit 0
         ;;
@@ -191,6 +272,7 @@ echo "📂 Results are saved in:"
 echo "- Chain configuration: _fusion_todo/chains/"
 echo "- Generated output: _fusion_todo/outputs/"
 echo "- Reasoning trail: _fusion_todo/reasoning_trail.md"
+echo "- Pattern metrics: _fusion_todo/memory/"
 
 # Deactivate virtual environment
 deactivate 
