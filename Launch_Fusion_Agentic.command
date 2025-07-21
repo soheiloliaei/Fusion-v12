@@ -21,7 +21,8 @@ declare -A FILES=(
     ["evaluator_metrics.py"]="evaluator_metrics.py"
     ["agent_chain.py"]="agent_chain.py"
     ["fusion_v11_knowledge_base.json"]="fusion_v11_knowledge_base.json"
-    ["fusion.py"]="fusion.py"
+    ["fusion_cli.py"]="fusion_cli.py"
+    ["memory_registry.py"]="memory_registry.py"
     ["requirements.txt"]="requirements.txt"
 )
 
@@ -52,8 +53,8 @@ for local_file in "${!FILES[@]}"; do
     fi
 done
 
-# Make fusion.py executable
-chmod +x fusion.py
+# Make CLI executable
+chmod +x fusion_cli.py
 
 # Install dependencies
 echo "📚 Installing dependencies..."
@@ -85,70 +86,61 @@ fi
 # Create example chain if it doesn't exist
 if [ ! -f "examples/example_chain.json" ]; then
     cat > examples/example_chain.json << EOL
-[
-  {
-    "agent": "StrategyPilot",
-    "pattern": "StepwiseInsightSynthesis",
-    "tension_type": "innovation_vs_feasibility",
-    "metrics_threshold": 0.8
-  },
-  {
-    "agent": "NarrativeArchitect",
-    "pattern": "RoleDirective",
-    "context": {
-      "role": "Support Design Lead",
-      "domain": "block",
-      "industry": "fintech"
-    },
-    "metrics_threshold": 0.85
-  },
-  {
-    "agent": "EvaluatorAgent",
-    "pattern": "PatternCritiqueThenRewrite",
-    "tension_type": "user_vs_business",
-    "metrics_threshold": 0.9
-  }
-]
+{
+  "mode": "simulate",
+  "template": "strategy",
+  "input": "Design a new payment verification flow"
+}
 EOL
 fi
 
 # Create _fusion_todo directory if it doesn't exist
 mkdir -p _fusion_todo
-
-# Run system test
-echo "🧪 Running system test..."
-./fusion.py chain examples/example_chain.json --input examples/test_input.txt --adaptive
+mkdir -p _fusion_todo/chains
+mkdir -p _fusion_todo/outputs
 
 # Show menu
 echo ""
 echo "🎯 Fusion v11.2 is ready!"
-echo "Choose an option:"
-echo "1. Run interactive launcher"
-echo "2. Run quick test"
-echo "3. Run pattern evaluation"
-echo "4. View documentation"
-echo "5. Exit"
+echo "Choose an execution mode:"
+echo "1. SIMULATE - For exploration and testing"
+echo "2. SHIP - For production-ready output"
+echo "3. CRITIQUE - For analysis and improvement"
+echo "4. Run example chain"
+echo "5. View documentation"
+echo "6. Exit"
 
-read -p "Enter your choice (1-5): " choice
+read -p "Enter your choice (1-6): " choice
 
 case $choice in
     1)
-        echo "🚀 Launching interactive mode..."
-        ./fusion.py run strategy_pilot --pattern StepwiseInsightSynthesis --text "Enter your design challenge" --evaluate
+        echo "🧪 Running in SIMULATE mode..."
+        read -p "Enter your task: " task
+        ./fusion_cli.py simulate "$task"
         ;;
     2)
-        echo "🧪 Running quick test..."
-        ./fusion.py chain examples/example_chain.json --input examples/test_input.txt --adaptive
+        echo "🚀 Running in SHIP mode..."
+        read -p "Enter your task: " task
+        ./fusion_cli.py ship "$task"
         ;;
     3)
-        echo "📊 Running pattern evaluation..."
-        ./fusion.py evaluate examples/test_output.txt --pattern RoleDirective
+        echo "🔍 Running in CRITIQUE mode..."
+        read -p "Enter your task: " task
+        ./fusion_cli.py critique "$task"
         ;;
     4)
-        echo "📚 Opening documentation..."
-        curl -s "$BASE_URL/ChatGPT_Upload_v11.2/README.md"
+        echo "📋 Running example chain..."
+        ./fusion_cli.py simulate "$(cat examples/test_input.txt)"
         ;;
     5)
+        echo "📚 Opening documentation..."
+        if [ -f "README.md" ]; then
+            cat README.md
+        else
+            curl -s "$BASE_URL/README.md"
+        fi
+        ;;
+    6)
         echo "👋 Goodbye!"
         exit 0
         ;;
