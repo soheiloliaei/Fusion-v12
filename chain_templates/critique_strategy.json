@@ -1,0 +1,45 @@
+{
+    "name": "critique_strategy",
+    "description": "Deep analysis and strategic improvement",
+    "execution_mode": "critique",
+    "chain": [
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "PatternCritiqueThenRewrite",
+            "config": {
+                "critique_depth": "maximum",
+                "focus_areas": [
+                    "technical_feasibility",
+                    "user_experience",
+                    "business_impact",
+                    "security_compliance"
+                ]
+            }
+        },
+        {
+            "agent": "StrategyPilot",
+            "pattern": "StepwiseInsightSynthesis",
+            "config": {
+                "step_depth": "high",
+                "practicality_bias": 1.2,
+                "focus": "improvement_strategy"
+            }
+        },
+        {
+            "agent": "NarrativeArchitect",
+            "pattern": "RoleDirective",
+            "config": {
+                "role": "Implementation Lead",
+                "domain": "block",
+                "focus": "actionable_improvements"
+            }
+        }
+    ],
+    "success_criteria": {
+        "critique_depth": 0.9,
+        "actionability": 0.85,
+        "completeness": 0.8
+    },
+    "max_iterations": 2,
+    "output_format": "markdown"
+}

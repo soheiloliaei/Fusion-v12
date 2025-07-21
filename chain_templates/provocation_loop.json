@@ -1,0 +1,45 @@
+{
+    "name": "provocation_loop",
+    "description": "Iterative chain for breakthrough thinking",
+    "execution_mode": "simulate",
+    "chain": [
+        {
+            "agent": "StrategyPilot",
+            "pattern": "StepwiseInsightSynthesis",
+            "config": {
+                "innovation_bias": 1.2,
+                "step_depth": "high"
+            }
+        },
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "PatternCritiqueThenRewrite",
+            "config": {
+                "critique_depth": "deep",
+                "focus_areas": [
+                    "innovation",
+                    "feasibility",
+                    "impact"
+                ]
+            }
+        },
+        {
+            "agent": "StrategyPilot",
+            "pattern": "PatternAmplifier",
+            "config": {
+                "amplification_focus": [
+                    "novel_elements",
+                    "edge_cases",
+                    "breakthrough_potential"
+                ]
+            }
+        }
+    ],
+    "success_criteria": {
+        "innovation_score": 0.8,
+        "feasibility_score": 0.7,
+        "clarity_score": 0.75
+    },
+    "max_iterations": 3,
+    "output_format": "markdown"
+}
