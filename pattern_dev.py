@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, List, Any
 
-from prompt_pattern_registry import get_pattern_by_name, list_patterns as get_all_patterns
+from prompt_pattern_registry import PatternRegistry
 from evaluator_metrics import evaluate_output
 from execution_mode_map import get_mode_config
 
@@ -22,7 +22,7 @@ def test_pattern(
 ) -> Dict[str, Any]:
     """Test a pattern with given input"""
     # Get pattern
-    pattern = get_pattern_by_name(pattern_name)
+    pattern = PatternRegistry.get_pattern(pattern_name)
     if not pattern:
         raise ValueError(f"Pattern not found: {pattern_name}")
         
@@ -37,7 +37,8 @@ def test_pattern(
     threshold = mode_config.critique_threshold
     
     # Check if fallback would trigger
-    failed_metrics = [k for k, v in metrics.items() if isinstance(v, float) and v < threshold]
+    failed_metrics = [k for k, v in metrics.items() 
+                     if isinstance(v, (int, float)) and v < threshold]
     would_fallback = bool(failed_metrics)
     
     # Prepare results
@@ -60,12 +61,11 @@ def test_pattern(
     return results
 
 def save_test_results(results: Dict[str, Any]):
-    """Save test results to file"""
-    # Create directory
+    """Save test results"""
     os.makedirs(PATTERN_TESTS_DIR, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
     # Save JSON results
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     json_path = PATTERN_TESTS_DIR / f"test_{timestamp}.json"
     with open(json_path, 'w') as f:
         json.dump(results, f, indent=2)
@@ -73,119 +73,94 @@ def save_test_results(results: Dict[str, Any]):
     # Generate markdown report
     report = [
         f"# Pattern Test Report - {timestamp}\n",
-        f"## Pattern: {results['pattern']}",
+        f"Pattern: {results['pattern']}",
         f"Mode: {results['mode']}\n",
         "## Input Preview",
-        results['input_preview'],
+        results["input_preview"],
         "\n## Output",
-        results['output'],
-        "\n## Metrics"
+        results["output"],
+        "\n## Metrics",
+        *[f"- {k}: {v:.2f}" if isinstance(v, (int, float)) else f"- {k}: {v}"
+          for k, v in results["metrics"].items()],
+        "\n## Fallback Analysis",
+        f"Threshold: {results['threshold']:.2f}"
     ]
     
-    for k, v in results['metrics'].items():
-        if isinstance(v, float):
-            report.append(f"- {k}: {v:.2f}")
-        else:
-            report.append(f"- {k}: {v}")
-            
-    if results['would_fallback']:
+    if results["would_fallback"]:
         report.extend([
-            "\n## Fallback Analysis",
-            f"Threshold: {results['threshold']:.2f}",
             "Failed metrics:",
-            *[f"- {m}" for m in results['failed_metrics']]
+            *[f"- {m}" for m in results["failed_metrics"]]
         ])
+    else:
+        report.append("No fallback needed")
         
     # Save markdown report
     md_path = PATTERN_TESTS_DIR / f"test_{timestamp}.md"
     with open(md_path, 'w') as f:
         f.write("\n".join(report))
 
-def list_patterns() -> List[str]:
-    """List all available patterns"""
-    return sorted(get_all_patterns().keys())
+def list_patterns():
+    """List available patterns"""
+    patterns = PatternRegistry.list_patterns()
+    print("\nAvailable patterns:")
+    for p in patterns:
+        print(f"- {p}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Fusion v12.0 Pattern Development Tool")
-    
-    parser.add_argument(
-        "pattern",
-        help="Pattern name to test"
-    )
-    
-    parser.add_argument(
-        "--input",
-        "-i",
-        required=True,
-        help="Input text file"
-    )
-    
-    parser.add_argument(
-        "--mode",
-        "-m",
-        default="simulate",
-        choices=["simulate", "ship", "critique"],
-        help="Execution mode (default: simulate)"
-    )
-    
-    parser.add_argument(
-        "--no-save",
-        "-ns",
-        action="store_true",
-        help="Don't save test results"
-    )
-    
-    parser.add_argument(
-        "--list",
-        "-l",
-        action="store_true",
-        help="List available patterns"
-    )
-    
+    parser = argparse.ArgumentParser(description="Pattern Development Tool")
+    parser.add_argument("pattern",
+                      help="Pattern name to test")
+    parser.add_argument("-i", "--input",
+                      help="Input text file")
+    parser.add_argument("-m", "--mode", default="simulate",
+                      choices=["simulate", "ship", "critique"],
+                      help="Execution mode")
+    parser.add_argument("-l", "--list", action="store_true",
+                      help="List available patterns")
     args = parser.parse_args()
     
     try:
         if args.list:
-            patterns = list_patterns()
-            print("\nAvailable patterns:")
-            for p in patterns:
-                print(f"- {p}")
+            list_patterns()
             return
+            
+        if not args.input:
+            print("Error: Input file required", file=sys.stderr)
+            sys.exit(1)
             
         # Load input
         with open(args.input, 'r') as f:
             input_text = f.read()
             
-        # Run test
+        # Test pattern
         results = test_pattern(
             pattern_name=args.pattern,
             input_text=input_text,
-            mode=args.mode,
-            save_results=not args.no_save
+            mode=args.mode
         )
         
         # Print results
         print("\nTest Results:")
         print(f"Pattern: {results['pattern']}")
         print(f"Mode: {results['mode']}\n")
-        
         print("Metrics:")
-        for k, v in results['metrics'].items():
-            if isinstance(v, float):
+        for k, v in results["metrics"].items():
+            if isinstance(v, (int, float)):
                 print(f"- {k}: {v:.2f}")
             else:
                 print(f"- {k}: {v}")
                 
-        if results['would_fallback']:
-            print("\nFallback Analysis:")
-            print(f"Threshold: {results['threshold']:.2f}")
+        print("\nFallback Analysis:")
+        print(f"Threshold: {results['threshold']:.2f}")
+        if results["would_fallback"]:
             print("Failed metrics:")
-            for m in results['failed_metrics']:
+            for m in results["failed_metrics"]:
                 print(f"- {m}")
-                
-        if not args.no_save:
-            print(f"\nResults saved to: {PATTERN_TESTS_DIR}")
+        else:
+            print("No fallback needed")
             
+        print(f"\nResults saved to: {PATTERN_TESTS_DIR}")
+        
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
         sys.exit(1)

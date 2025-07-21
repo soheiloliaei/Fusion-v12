@@ -1,0 +1,56 @@
+{
+    "name": "rewrite_evolution",
+    "description": "Iterative improvement through structured rewrites",
+    "execution_mode": "ship",
+    "chain": [
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "PatternCritiqueThenRewrite",
+            "config": {
+                "critique_depth": "high",
+                "focus_areas": [
+                    "clarity",
+                    "completeness",
+                    "block_relevance"
+                ]
+            }
+        },
+        {
+            "agent": "NarrativeArchitect",
+            "pattern": "RoleDirective",
+            "config": {
+                "role": "Technical Writer",
+                "domain": "block",
+                "focus": "clarity_and_structure"
+            }
+        },
+        {
+            "agent": "StrategyPilot",
+            "pattern": "StepwiseInsightSynthesis",
+            "config": {
+                "step_depth": "medium",
+                "clarity_bias": 1.3,
+                "focus": "implementation_path"
+            }
+        },
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "PatternCritiqueThenRewrite",
+            "config": {
+                "critique_depth": "final",
+                "focus_areas": [
+                    "production_readiness",
+                    "technical_accuracy",
+                    "completeness"
+                ]
+            }
+        }
+    ],
+    "success_criteria": {
+        "clarity_score": 0.9,
+        "completeness_score": 0.85,
+        "technical_accuracy": 0.9
+    },
+    "max_iterations": 4,
+    "output_format": "markdown"
+}

@@ -3,14 +3,14 @@ Enhanced agent chain system for Fusion v11.2.
 Provides sequential agent execution with pattern application, creative tension, and metrics tracking.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import os
 from pathlib import Path
 
-from memory_registry import memory
+from memory_registry import memory, MetricValue, Metrics
 from evaluator_metrics import evaluate_output
 from execution_mode_map import get_mode_config, apply_mode_to_agent, apply_mode_to_pattern
 from prompt_pattern_registry import get_pattern_by_name, get_fallback_pattern
@@ -41,13 +41,13 @@ class AgentChain:
         )
         
         self.mode_config = get_mode_config(self.config.execution_mode)
-        self.metrics = {}
+        self.metrics: Metrics = {}
         self.chain_output = ""
         self.reasoning_trail = []
         self.fallback_log = self._load_fallback_log()
         
     def _load_fallback_log(self) -> Dict:
-        """Load or create fallback log"""
+        """Load or initialize fallback log"""
         os.makedirs(FUSION_TODO_DIR, exist_ok=True)
         if FALLBACK_LOG_PATH.exists():
             with open(FALLBACK_LOG_PATH, 'r') as f:
@@ -64,7 +64,7 @@ class AgentChain:
         agent: str,
         original_pattern: str,
         fallback_pattern: str,
-        metrics: Dict[str, float],
+        metrics: Metrics,
         reason: str
     ):
         """Log a fallback event"""
@@ -84,6 +84,7 @@ class AgentChain:
         """Execute the chain"""
         self.chain_output = input_text
         self.reasoning_trail = []
+        self.fallback_log = {"fallbacks": []}  # Initialize fallbacks
         
         for step in self.config.chain:
             # Get step configuration
@@ -124,7 +125,8 @@ class AgentChain:
             
             # Check if metrics meet threshold
             threshold = self.mode_config.critique_threshold
-            failed_metrics = [k for k, v in metrics.items() if v < threshold]
+            failed_metrics = [k for k, v in metrics.items() 
+                            if isinstance(v, (int, float)) and v < threshold]
             
             if adaptive and failed_metrics:
                 # Try fallback pattern
@@ -153,7 +155,8 @@ class AgentChain:
                     )
                     
                     # Use better result
-                    if all(v >= threshold for v in fallback_metrics.values()):
+                    if all(isinstance(v, (int, float)) and v >= threshold 
+                          for v in fallback_metrics.values()):
                         step_output = fallback_output
                         metrics = fallback_metrics
                         pattern = fallback_pattern
@@ -186,7 +189,8 @@ class AgentChain:
             "output": self.chain_output,
             "metrics": self.metrics,
             "reasoning_trail": self.reasoning_trail,
-            "fallbacks": [f for f in self.fallback_log["fallbacks"] if f["timestamp"] > (datetime.now() - timedelta(minutes=5)).isoformat()]
+            "fallbacks": [f for f in self.fallback_log.get("fallbacks", []) 
+                         if f["timestamp"] > (datetime.now() - timedelta(minutes=5)).isoformat()]
         }
         
     def _execute_step(
@@ -220,7 +224,8 @@ class AgentChain:
                 f"### Step {step['step']}: {step['agent']}",
                 f"Pattern: {step['pattern']}\n",
                 "#### Metrics:",
-                *[f"- {k}: {v:.2f}" for k, v in step['metrics'].items()],
+                *[f"- {k}: {v:.2f}" if isinstance(v, (int, float)) else f"- {k}: {v}"
+                  for k, v in step['metrics'].items()],
                 "\n#### Output Preview:",
                 step['output_preview']
             ])

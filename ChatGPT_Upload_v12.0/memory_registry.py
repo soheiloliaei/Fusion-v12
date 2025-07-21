@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 import json
 import os
 from datetime import datetime, timedelta
@@ -6,9 +6,6 @@ from pathlib import Path
 
 FUSION_TODO_DIR = Path("_fusion_todo")
 MEMORY_FILE = FUSION_TODO_DIR / "memory.json"
-
-MetricValue = Union[float, str, None]
-Metrics = Dict[str, MetricValue]
 
 class MemoryRegistry:
     """Registry for pattern usage and chain execution memory"""
@@ -38,7 +35,7 @@ class MemoryRegistry:
         self,
         agent: str,
         pattern: str,
-        metrics: Metrics
+        metrics: Dict[str, float]
     ):
         """Record pattern usage"""
         self.pattern_uses.append({
@@ -52,7 +49,7 @@ class MemoryRegistry:
     def record_chain_execution(
         self,
         chain_config: Dict,
-        metrics: Metrics,
+        metrics: Dict[str, float],
         output: str
     ):
         """Record chain execution"""
@@ -91,11 +88,11 @@ class MemoryRegistry:
             
             if pattern not in pattern_scores:
                 pattern_scores[pattern] = {
-                    "total": sum(v for v in metrics.values() if isinstance(v, (int, float))),
+                    "total": sum(metrics.values()),
                     "count": 1
                 }
             else:
-                pattern_scores[pattern]["total"] += sum(v for v in metrics.values() if isinstance(v, (int, float)))
+                pattern_scores[pattern]["total"] += sum(metrics.values())
                 pattern_scores[pattern]["count"] += 1
                 
         # Find pattern with highest average score

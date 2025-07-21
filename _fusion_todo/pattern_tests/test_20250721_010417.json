@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-07-21T01:04:17.369522",
+  "pattern": "StepwiseInsightSynthesis",
+  "mode": "simulate",
+  "input_preview": "Design a real-time payment verification system that balances security with user experience.\n",
+  "output": "Step 1: Initial Analysis\nDesign a real-time payment verification system that balances security with user experience.\n\n\nStep 2: Key Insights\n...",
+  "metrics": {
+    "clarity_score": 1.0,
+    "innovation_score": 1.0,
+    "pattern_effectiveness": 0.5,
+    "confidence_score": 0.6,
+    "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+  },
+  "would_fallback": true,
+  "failed_metrics": [
+    "pattern_effectiveness"
+  ],
+  "threshold": 0.6
+}

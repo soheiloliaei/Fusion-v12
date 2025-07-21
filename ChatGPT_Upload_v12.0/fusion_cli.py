@@ -12,89 +12,42 @@ from execution_mode_map import ExecutionMode, get_mode_config
 from input_transformer import transform_output_to_input
 from prompt_pattern_registry import get_pattern_by_name
 
+CHAIN_TEMPLATES_DIR = Path("chain_templates")
 FUSION_TODO_DIR = Path("_fusion_todo")
-CHAIN_TEMPLATES_DIR = FUSION_TODO_DIR / "chain_templates"
 CHAIN_RUN_LOGS_DIR = FUSION_TODO_DIR / "chain_run_logs"
 
-def load_input(input_path: str) -> str:
-    """Load input text"""
-    with open(input_path, 'r') as f:
+def load_input(path: str) -> str:
+    """Load input from file"""
+    with open(path, 'r') as f:
         return f.read()
 
-def load_chain_config(config_path: str) -> dict:
+def load_chain_config(path: str) -> Dict:
     """Load chain configuration"""
-    with open(config_path, 'r') as f:
+    with open(path, 'r') as f:
         return json.load(f)
 
-def save_chain_config(config: dict) -> str:
-    """Save chain configuration"""
-    os.makedirs(FUSION_TODO_DIR, exist_ok=True)
-    path = FUSION_TODO_DIR / "chain_config.json"
+def save_output(output: Dict, path: Optional[str] = None):
+    """Save output to file or print to stdout"""
+    if path:
+        with open(path, 'w') as f:
+            json.dump(output, f, indent=2)
+    else:
+        print(json.dumps(output, indent=2))
+
+def save_chain_config(config: Dict) -> str:
+    """Save chain config and return path"""
+    os.makedirs(FUSION_TODO_DIR / "chains", exist_ok=True)
+    path = FUSION_TODO_DIR / "chains" / "chain_config.json"
     with open(path, 'w') as f:
         json.dump(config, f, indent=2)
     return str(path)
-
-def save_output(result: dict, output_path: Optional[str] = None):
-    """Save chain output"""
-    if output_path:
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-    else:
-        print("\nOutput:")
-        print(result["output"])
-        print("\nMetrics:")
-        for k, v in result["metrics"].items():
-            if isinstance(v, (int, float)):
-                print(f"{k}: {v:.2f}")
-            else:
-                print(f"{k}: {v}")
-        if result.get("fallbacks"):
-            print("\nFallbacks:")
-            for f in result["fallbacks"]:
-                print(f"- {f['agent']} -> {f['fallback_pattern']} ({f['reason']})")
-
-def log_chain_execution(config: dict, result: dict):
-    """Log chain execution"""
-    os.makedirs(FUSION_TODO_DIR / "chain_run_logs", exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = FUSION_TODO_DIR / "chain_run_logs" / f"{timestamp}.md"
-    
-    log = [
-        "# Chain Execution Log\n",
-        f"Time: {datetime.now().isoformat()}",
-        f"Mode: {config['execution_mode']}\n",
-        "## Configuration\n```json",
-        json.dumps(config, indent=2),
-        "```\n",
-        "## Output\n",
-        result["output"],
-        "\n## Metrics\n",
-        *[f"- {k}: {v:.2f}" if isinstance(v, (int, float)) else f"- {k}: {v}"
-          for k, v in result["metrics"].items()],
-        "\n## Reasoning Trail\n",
-        *[f"### Step {step['step']}: {step['agent']}"
-          f"\nPattern: {step['pattern']}"
-          f"\nMetrics: {', '.join(f'{k}={v:.2f}' if isinstance(v, (int, float)) else f'{k}={v}' for k, v in step['metrics'].items())}"
-          f"\nOutput: {step['output_preview']}"
-          for step in result["reasoning_trail"]]
-    ]
-    
-    if result.get("fallbacks"):
-        log.extend([
-            "\n## Fallbacks\n",
-            *[f"- {f['agent']} -> {f['fallback_pattern']} ({f['reason']})"
-              for f in result["fallbacks"]]
-        ])
-    
-    with open(path, 'w') as f:
-        f.write("\n".join(log))
 
 def run_chain_from_template(
     template_name: str,
     mode: str,
     input_text: str,
     adaptive: bool = True
-) -> dict:
+) -> Dict:
     """Run chain from template"""
     # Load template
     template_path = CHAIN_TEMPLATES_DIR / f"{template_name}.json"
@@ -118,20 +71,78 @@ def run_chain_from_template(
     
     return result
 
+def log_chain_execution(template: Dict, result: Dict):
+    """Log chain execution details"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Create log directory
+    os.makedirs(CHAIN_RUN_LOGS_DIR, exist_ok=True)
+    
+    # Generate markdown log
+    log = [
+        f"# Chain Execution Log - {timestamp}\n",
+        f"## Template: {template.get('name', 'unnamed')}\n",
+        f"Mode: {template.get('execution_mode', 'unknown')}\n",
+        "## Chain Steps\n"
+    ]
+    
+    for step in result.get("reasoning_trail", []):
+        log.extend([
+            f"### Step {step['step']}: {step['agent']}",
+            f"Pattern: {step['pattern']}\n",
+            "#### Metrics",
+            *[f"- {k}: {v:.2f}" for k, v in step['metrics'].items()],
+            "\n#### Output Preview",
+            step['output_preview'],
+            "\n---\n"
+        ])
+        
+    # Save log
+    log_path = CHAIN_RUN_LOGS_DIR / f"chain_run_{timestamp}.md"
+    with open(log_path, 'w') as f:
+        f.write("\n".join(log))
+
 def main():
-    parser = argparse.ArgumentParser(description="Fusion CLI")
-    parser.add_argument("mode", choices=["simulate", "ship", "critique"],
-                      help="Execution mode")
-    parser.add_argument("-i", "--input", required=True,
-                      help="Input text file")
-    parser.add_argument("-o", "--output",
-                      help="Output JSON file")
-    parser.add_argument("-c", "--chain",
-                      help="Chain configuration file")
-    parser.add_argument("-t", "--template",
-                      help="Chain template name")
-    parser.add_argument("--no-adaptive", action="store_true",
-                      help="Disable adaptive pattern switching")
+    parser = argparse.ArgumentParser(description="Fusion v12.0 CLI")
+    
+    parser.add_argument(
+        "mode",
+        choices=["simulate", "ship", "critique"],
+        help="Execution mode"
+    )
+    
+    parser.add_argument(
+        "--input",
+        "-i",
+        required=True,
+        help="Input text file"
+    )
+    
+    parser.add_argument(
+        "--chain",
+        "-c",
+        help="Chain configuration JSON file"
+    )
+    
+    parser.add_argument(
+        "--template",
+        "-t",
+        help="Chain template name"
+    )
+    
+    parser.add_argument(
+        "--output",
+        "-o",
+        help="Output JSON file (default: stdout)"
+    )
+    
+    parser.add_argument(
+        "--no-adaptive",
+        "-na",
+        action="store_true",
+        help="Disable adaptive pattern switching"
+    )
+    
     args = parser.parse_args()
     
     try:

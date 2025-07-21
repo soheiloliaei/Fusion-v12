@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-07-21T00:57:43.909929",
+  "pattern": "InversePattern",
+  "mode": "simulate",
+  "input_preview": "Design a real-time payment verification system that balances security with user experience.\n",
+  "output": "Original:\nDesign a real-time payment verification system that balances security with user experience.\n\n\nInverse Perspective:\n...",
+  "metrics": {
+    "clarity_score": 1.0,
+    "innovation_score": 1.0,
+    "pattern_effectiveness": 0.5,
+    "confidence_score": 0.0,
+    "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+  },
+  "would_fallback": true,
+  "failed_metrics": [
+    "pattern_effectiveness",
+    "confidence_score"
+  ],
+  "threshold": 0.6
+}

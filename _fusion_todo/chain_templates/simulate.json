@@ -1,6 +1,6 @@
 {
-    "name": "test_chain",
-    "description": "Test chain configuration",
+    "name": "simulate",
+    "description": "Exploration and testing chain",
     "execution_mode": "simulate",
     "chain": [
         {

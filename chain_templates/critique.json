@@ -1,0 +1,23 @@
+{
+    "name": "critique",
+    "description": "Analysis and improvement chain",
+    "execution_mode": "critique",
+    "chain": [
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "PatternCritiqueThenRewrite"
+        },
+        {
+            "agent": "StrategyPilot",
+            "pattern": "InversePattern"
+        },
+        {
+            "agent": "NarrativeArchitect",
+            "pattern": "PersonaFramer"
+        }
+    ],
+    "success_criteria": {
+        "clarity_score": 0.85,
+        "innovation_score": 0.85
+    }
+}

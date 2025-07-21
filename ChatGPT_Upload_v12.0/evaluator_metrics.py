@@ -3,247 +3,157 @@ Enhanced evaluator metrics for Fusion v11.2 pattern system.
 Provides quantitative assessment of pattern outputs with Block-specific metrics.
 """
 
-from typing import Dict, Any, List, Optional, Union
+from typing import Dict, Any, List, Optional, Union, Tuple
 import re
+from dataclasses import dataclass
 
-def evaluate_output(text: str, pattern_name: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Evaluate pattern output quality with enhanced metrics."""
-    context = context or {}
+@dataclass
+class MetricResult:
+    """Result of a metric evaluation"""
+    score: float
+    reason: Optional[str] = None
+    confidence: Optional[float] = None
 
-    # Core metrics from original
-    clarity_score = calculate_clarity_score(text)
-    structure_adherence = calculate_structure_adherence(text, pattern_name)
-    alignment_score = calculate_alignment_score(context)
-    completion_score = calculate_completion_score(text)
-
-    # Enhanced metrics for Block context
-    block_relevance = calculate_block_relevance(text, context)
-    pattern_effectiveness = calculate_pattern_effectiveness(text, pattern_name)
-    innovation_score = calculate_innovation_score(text, context)
-
-    # Calculate weighted overall score
-    weights = {
-        "clarity": 0.15,
-        "structure": 0.15,
-        "alignment": 0.15,
-        "completion": 0.15,
-        "block_relevance": 0.15,
-        "pattern_effectiveness": 0.15,
-        "innovation": 0.10
-    }
-
-    overall = round(
-        (clarity_score * weights["clarity"] +
-         structure_adherence * weights["structure"] +
-         alignment_score * weights["alignment"] +
-         completion_score * weights["completion"] +
-         block_relevance * weights["block_relevance"] +
-         pattern_effectiveness * weights["pattern_effectiveness"] +
-         innovation_score * weights["innovation"]), 2
+def evaluate_clarity(text: str) -> MetricResult:
+    """Evaluate text clarity"""
+    # Count sentences
+    sentences = len(re.split(r'[.!?]+', text))
+    
+    # Count words per sentence
+    words = len(text.split())
+    avg_words = words / max(sentences, 1)
+    
+    # Check for complex words (>3 syllables)
+    complex_words = len([w for w in text.split() if len(re.findall(r'[aeiou]', w.lower())) > 3])
+    complex_ratio = complex_words / max(words, 1)
+    
+    # Calculate base score
+    base_score = max(0.0, min(1.0, 1.0 - (avg_words - 15) / 30 - complex_ratio))
+    
+    # Calculate confidence
+    confidence = min(1.0, sentences / 10)
+    
+    # Generate reason
+    reasons = []
+    if avg_words > 25:
+        reasons.append("Sentences are too long")
+    if complex_ratio > 0.2:
+        reasons.append("Too many complex words")
+        
+    return MetricResult(
+        score=base_score,
+        reason="; ".join(reasons) if reasons else None,
+        confidence=confidence
     )
 
-    return {
-        "clarity_score": clarity_score,
-        "structure_adherence": structure_adherence,
-        "alignment_score": alignment_score,
-        "completion_score": completion_score,
-        "block_relevance": block_relevance,
-        "pattern_effectiveness": pattern_effectiveness,
-        "innovation_score": innovation_score,
-        "overall": overall,
-        "breakdown": get_score_breakdown(locals(), weights)
-    }
-
-def calculate_clarity_score(text: str) -> float:
-    """Calculate clarity score with enhanced metrics."""
-    base_score = 1.0 if len(text.strip()) > 20 else 0.2
+def evaluate_innovation(text: str) -> MetricResult:
+    """Evaluate innovation level"""
+    # Count unique words
+    words = text.lower().split()
+    unique_ratio = len(set(words)) / len(words)
     
-    # Additional clarity checks
-    has_clear_sections = bool(re.search(r'\n\n|\n[-*•]', text))
-    has_proper_capitalization = text[0].isupper() if text else False
-    has_proper_formatting = bool(re.search(r'[.!?][\s]*$', text))
-    
-    modifiers = [
-        1.0 if has_clear_sections else 0.8,
-        1.0 if has_proper_capitalization else 0.9,
-        1.0 if has_proper_formatting else 0.9
+    # Check for innovation markers
+    innovation_markers = [
+        "novel", "innovative", "unique", "creative",
+        "breakthrough", "original", "revolutionary"
     ]
+    marker_count = sum(1 for w in words if w in innovation_markers)
     
-    return round(base_score * sum(modifiers) / len(modifiers), 2)
-
-def calculate_structure_adherence(text: str, pattern_name: str) -> float:
-    """Calculate how well the output adheres to the pattern structure."""
-    base_score = 1.0 if pattern_name in text else 0.5
-
-    pattern_indicators = {
-        "StepwiseInsightSynthesis": [
-            r'\b\d+[\)\.]\s',  # Numbered steps
-            r'insight|analysis|finding'
-        ],
-        "RoleDirective": [
-            r'as\s+[aA]\s+[A-Z][a-z]+',  # Role identification
-            r'perspective|viewpoint|stance'
-        ],
-        "PatternCritiqueThenRewrite": [
-            r'critique|analysis|review',
-            r'improved|enhanced|rewritten'
-        ]
-    }
-
-    if pattern_name in pattern_indicators:
-        indicators = pattern_indicators[pattern_name]
-        matches = sum(1 for indicator in indicators if re.search(indicator, text, re.I))
-        indicator_score = matches / len(indicators)
-        return round((base_score + indicator_score) / 2, 2)
-
-    return base_score
-
-def calculate_alignment_score(context: dict) -> float:
-    """Calculate alignment with context and goals."""
-    base_score = 0.9 if 'goal' in context.get('tags', []) else 0.6
+    # Calculate base score
+    base_score = max(0.0, min(1.0, unique_ratio + marker_count * 0.1))
     
-    # Check for Block-specific alignment
-    if context.get('domain') == 'block':
-        base_score *= 1.1  # Boost for Block-specific context
+    # Calculate confidence
+    confidence = min(1.0, len(words) / 200)
     
-    # Check for industry alignment
-    if 'industry' in context:
-        base_score *= 1.05  # Boost for industry context
+    # Generate reason
+    reasons = []
+    if unique_ratio < 0.4:
+        reasons.append("Low vocabulary diversity")
+    if marker_count == 0:
+        reasons.append("No innovation markers found")
         
-    return round(min(base_score, 1.0), 2)
+    return MetricResult(
+        score=base_score,
+        reason="; ".join(reasons) if reasons else None,
+        confidence=confidence
+    )
 
-def calculate_completion_score(text: str) -> float:
-    """Calculate completion and coherence score."""
-    base_score = 1.0 if text.strip().endswith('.') else 0.7
-    
-    # Check for complete thoughts
-    has_complete_sentences = bool(re.search(r'[.!?]\s+[A-Z]', text))
-    has_proper_structure = bool(re.search(r'^[A-Z].*[.!?]$', text.strip()))
-    
-    modifiers = [
-        1.0 if has_complete_sentences else 0.8,
-        1.0 if has_proper_structure else 0.9
-    ]
-    
-    return round(base_score * sum(modifiers) / len(modifiers), 2)
-
-def calculate_block_relevance(text: str, context: dict) -> float:
-    """Calculate relevance to Block's domain and needs."""
-    block_terms = [
-        'cash app', 'support', 'customer', 'payment', 'transaction',
-        'security', 'compliance', 'user experience', 'workflow'
-    ]
-    
-    term_matches = sum(1 for term in block_terms if term.lower() in text.lower())
-    base_score = min(term_matches / len(block_terms) + 0.3, 1.0)
-    
-    # Context boosts
-    if context.get('domain') == 'block':
-        base_score = min(base_score + 0.2, 1.0)
-    
-    return round(base_score, 2)
-
-def calculate_pattern_effectiveness(text: str, pattern_name: str) -> float:
-    """Calculate how effectively the pattern achieves its purpose."""
-    pattern_purposes = {
+def evaluate_pattern_effectiveness(text: str, pattern_name: str) -> MetricResult:
+    """Evaluate how well the text follows the pattern"""
+    # Pattern-specific checks
+    pattern_markers = {
         "StepwiseInsightSynthesis": [
-            r'step[s]?\s+\d',
-            r'insight|finding|analysis',
-            r'therefore|thus|conclusion'
+            r"Step \d+",
+            r"First,|Next,|Finally,",
+            r"This leads to|Therefore,"
         ],
         "RoleDirective": [
-            r'as\s+[aA]\s+[A-Z][a-z]+',
-            r'recommend|suggest|advise',
-            r'expertise|experience|knowledge'
+            r"As a|From the perspective",
+            r"would|should|must",
+            r"recommend|suggest|advise"
         ],
         "PatternCritiqueThenRewrite": [
-            r'issue|problem|concern',
-            r'improve|enhance|optimize',
-            r'solution|resolution|approach'
+            r"Issues?:|Problems?:",
+            r"Instead,|Better approach",
+            r"Improved version"
         ]
     }
     
-    if pattern_name in pattern_purposes:
-        indicators = pattern_purposes[pattern_name]
-        matches = sum(1 for indicator in indicators if re.search(indicator, text, re.I))
-        return round(matches / len(indicators), 2)
+    if pattern_name not in pattern_markers:
+        return MetricResult(
+            score=0.5,
+            reason="Unknown pattern",
+            confidence=0.0
+        )
+        
+    # Check for pattern markers
+    markers = pattern_markers[pattern_name]
+    matches = sum(1 for m in markers if re.search(m, text))
+    marker_score = matches / len(markers)
     
-    return 0.7  # Default score for unknown patterns
+    # Calculate confidence
+    confidence = min(1.0, matches / len(markers))
+    
+    # Generate reason
+    reasons = []
+    if marker_score < 0.5:
+        reasons.append(f"Missing key {pattern_name} elements")
+    if matches == 0:
+        reasons.append("No pattern markers found")
+        
+    return MetricResult(
+        score=marker_score,
+        reason="; ".join(reasons) if reasons else None,
+        confidence=confidence
+    )
 
-def calculate_innovation_score(text: str, context: dict) -> float:
-    """Calculate innovation and creativity score."""
-    innovation_indicators = [
-        r'new|novel|innovative',
-        r'unique|creative|original',
-        r'breakthrough|revolutionary|transformative'
-    ]
+def evaluate_output(text: str, pattern_name: str) -> Dict[str, Union[float, Optional[str]]]:
+    """Evaluate output text and return metrics"""
+    # Get individual metrics
+    clarity = evaluate_clarity(text)
+    innovation = evaluate_innovation(text)
+    effectiveness = evaluate_pattern_effectiveness(text, pattern_name)
     
-    matches = sum(1 for indicator in innovation_indicators if re.search(indicator, text, re.I))
-    base_score = matches / len(innovation_indicators)
+    # Calculate overall confidence
+    confidence = min(
+        clarity.confidence or 0.0,
+        innovation.confidence or 0.0,
+        effectiveness.confidence or 0.0
+    )
     
-    # Context boosts
-    if context.get('innovation_required', False):
-        base_score = min(base_score + 0.2, 1.0)
-    
-    return round(base_score, 2)
-
-def get_score_breakdown(scores: dict, weights: dict) -> Dict[str, Any]:
-    """Generate detailed breakdown of scores."""
+    # Collect reasons for potential fallback
+    fallback_reasons = []
+    if clarity.reason:
+        fallback_reasons.append(f"Clarity: {clarity.reason}")
+    if innovation.reason:
+        fallback_reasons.append(f"Innovation: {innovation.reason}")
+    if effectiveness.reason:
+        fallback_reasons.append(f"Pattern: {effectiveness.reason}")
+        
     return {
-        "metrics": {
-            "clarity": {
-                "score": scores["clarity_score"],
-                "weight": weights["clarity"],
-                "contribution": round(scores["clarity_score"] * weights["clarity"], 3)
-            },
-            "structure": {
-                "score": scores["structure_adherence"],
-                "weight": weights["structure"],
-                "contribution": round(scores["structure_adherence"] * weights["structure"], 3)
-            },
-            "alignment": {
-                "score": scores["alignment_score"],
-                "weight": weights["alignment"],
-                "contribution": round(scores["alignment_score"] * weights["alignment"], 3)
-            },
-            "completion": {
-                "score": scores["completion_score"],
-                "weight": weights["completion"],
-                "contribution": round(scores["completion_score"] * weights["completion"], 3)
-            },
-            "block_relevance": {
-                "score": scores["block_relevance"],
-                "weight": weights["block_relevance"],
-                "contribution": round(scores["block_relevance"] * weights["block_relevance"], 3)
-            },
-            "pattern_effectiveness": {
-                "score": scores["pattern_effectiveness"],
-                "weight": weights["pattern_effectiveness"],
-                "contribution": round(scores["pattern_effectiveness"] * weights["pattern_effectiveness"], 3)
-            },
-            "innovation": {
-                "score": scores["innovation_score"],
-                "weight": weights["innovation"],
-                "contribution": round(scores["innovation_score"] * weights["innovation"], 3)
-            }
-        },
-        "insights": generate_score_insights(scores)
-    }
-
-def generate_score_insights(scores: dict) -> List[str]:
-    """Generate insights about the evaluation scores."""
-    insights = []
-    
-    if scores["clarity_score"] < 0.7:
-        insights.append("Clarity could be improved with better structure and formatting")
-    
-    if scores["block_relevance"] < 0.7:
-        insights.append("Could be more relevant to Block's specific context")
-    
-    if scores["innovation_score"] < 0.6:
-        insights.append("Consider adding more innovative or novel elements")
-    
-    if scores["pattern_effectiveness"] < 0.7:
-        insights.append("Pattern could be applied more effectively")
-    
-    return insights if insights else ["All metrics are within acceptable ranges"] 
+        "clarity_score": clarity.score,
+        "innovation_score": innovation.score,
+        "pattern_effectiveness": effectiveness.score,
+        "confidence_score": confidence,
+        "fallback_reason": "; ".join(fallback_reasons) if fallback_reasons else None
+    } 

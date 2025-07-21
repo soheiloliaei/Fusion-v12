@@ -5,101 +5,169 @@ Provides sequential agent execution with pattern application, creative tension, 
 
 from typing import Dict, List, Optional
 import json
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 import os
-from datetime import datetime
+from pathlib import Path
+
 from memory_registry import memory
 from evaluator_metrics import evaluate_output
+from execution_mode_map import get_mode_config, apply_mode_to_agent, apply_mode_to_pattern
+from prompt_pattern_registry import get_pattern_by_name, get_fallback_pattern
+from input_transformer import transform_output_to_input
+
+FUSION_TODO_DIR = Path("_fusion_todo")
+FALLBACK_LOG_PATH = FUSION_TODO_DIR / "fallback_log.json"
+
+@dataclass
+class ChainConfig:
+    """Chain configuration"""
+    execution_mode: str
+    chain: List[Dict]
+    success_criteria: Optional[Dict] = None
+    max_iterations: int = 3
 
 class AgentChain:
-    def __init__(self, config_path: Optional[str] = None):
-        self.config = self._load_config(config_path) if config_path else []
+    def __init__(self, config_path: str):
+        """Initialize chain from config file"""
+        with open(config_path, 'r') as f:
+            config_data = json.load(f)
+            
+        self.config = ChainConfig(
+            execution_mode=config_data.get("execution_mode", "simulate"),
+            chain=config_data.get("chain", []),
+            success_criteria=config_data.get("success_criteria"),
+            max_iterations=config_data.get("max_iterations", 3)
+        )
+        
+        self.mode_config = get_mode_config(self.config.execution_mode)
         self.metrics = {}
         self.chain_output = ""
         self.reasoning_trail = []
+        self.fallback_log = self._load_fallback_log()
         
-    def _load_config(self, path: str) -> List[Dict]:
-        with open(path, 'r') as f:
-            return json.load(f)
+    def _load_fallback_log(self) -> Dict:
+        """Load or create fallback log"""
+        os.makedirs(FUSION_TODO_DIR, exist_ok=True)
+        if FALLBACK_LOG_PATH.exists():
+            with open(FALLBACK_LOG_PATH, 'r') as f:
+                return json.load(f)
+        return {"fallbacks": []}
+        
+    def _save_fallback_log(self):
+        """Save fallback log"""
+        with open(FALLBACK_LOG_PATH, 'w') as f:
+            json.dump(self.fallback_log, f, indent=2)
             
-    def _get_fallback_pattern(self, agent: str, current_pattern: str) -> Optional[str]:
-        """Get alternative pattern if current one fails"""
-        patterns = {
-            "StepwiseInsightSynthesis": "RoleDirective",
-            "RoleDirective": "PatternCritiqueThenRewrite",
-            "PatternCritiqueThenRewrite": "StepwiseInsightSynthesis"
-        }
-        return patterns.get(current_pattern)
-        
-    def generate_step_insights(self, step_output: str, metrics: Dict[str, float]) -> Dict:
-        """Generate detailed insights for a chain step"""
-        insights = {
-            "metrics_breakdown": {},
-            "improvement_suggestions": [],
-            "pattern_effectiveness": metrics.get("pattern_effectiveness", 0.0)
-        }
-        
-        # Analyze individual metrics
-        for metric, value in metrics.items():
-            insights["metrics_breakdown"][metric] = {
-                "score": value,
-                "interpretation": "Good" if value >= 0.8 else "Fair" if value >= 0.6 else "Needs Improvement"
-            }
-            
-            if value < 0.7:
-                insights["improvement_suggestions"].append(f"Consider improving {metric}")
-                
-        return insights
+    def _log_fallback(
+        self,
+        agent: str,
+        original_pattern: str,
+        fallback_pattern: str,
+        metrics: Dict[str, float],
+        reason: str
+    ):
+        """Log a fallback event"""
+        self.fallback_log["fallbacks"].append({
+            "timestamp": datetime.now().isoformat(),
+            "agent": agent,
+            "original_pattern": original_pattern,
+            "fallback_pattern": fallback_pattern,
+            "metrics": metrics,
+            "reason": reason,
+            "mode": self.config.execution_mode,
+            "threshold": self.mode_config.critique_threshold
+        })
+        self._save_fallback_log()
         
     def execute(self, input_text: str, adaptive: bool = True) -> Dict:
-        """Execute the agent chain with memory and adaptive pattern switching"""
+        """Execute the chain"""
         self.chain_output = input_text
         self.reasoning_trail = []
         
-        for step in self.config:
+        for step in self.config.chain:
+            # Get step configuration
             agent = step["agent"]
             pattern = step["pattern"]
-            metrics_threshold = step.get("metrics_threshold", 0.7)
+            step_config = step.get("config", {})
             
-            # Check memory for better pattern
-            if adaptive:
-                best_pattern = memory.get_best_pattern(agent)
-                if best_pattern and best_pattern != pattern:
-                    pattern = best_pattern
-                    
+            # Apply mode-specific configuration
+            agent_config = apply_mode_to_agent(
+                agent_name=agent,
+                mode=self.config.execution_mode,
+                base_config=step_config
+            )
+            
+            pattern_config = apply_mode_to_pattern(
+                pattern_name=pattern,
+                mode=self.config.execution_mode,
+                base_config=step_config
+            )
+            
             # Execute step
-            step_output = self._execute_step(agent, pattern, self.chain_output)
+            step_output = self._execute_step(
+                agent=agent,
+                pattern=pattern,
+                input_text=self.chain_output,
+                agent_config=agent_config,
+                pattern_config=pattern_config
+            )
+            
+            # Evaluate output
             metrics = evaluate_output(
                 text=step_output,
                 pattern_name=pattern
             )
             
-            # Generate insights
-            insights = self.generate_step_insights(step_output, metrics)
-            
             # Record execution
             memory.record_pattern_use(agent, pattern, metrics)
             
             # Check if metrics meet threshold
-            if adaptive and any(v < metrics_threshold for v in metrics.values()):
-                fallback_pattern = self._get_fallback_pattern(agent, pattern)
+            threshold = self.mode_config.critique_threshold
+            failed_metrics = [k for k, v in metrics.items() if v < threshold]
+            
+            if adaptive and failed_metrics:
+                # Try fallback pattern
+                fallback_pattern = get_fallback_pattern(pattern)
                 if fallback_pattern:
-                    # Try fallback pattern
-                    fallback_output = self._execute_step(agent, fallback_pattern, self.chain_output)
+                    fallback_output = self._execute_step(
+                        agent=agent,
+                        pattern=fallback_pattern,
+                        input_text=self.chain_output,
+                        agent_config=agent_config,
+                        pattern_config=pattern_config
+                    )
+                    
                     fallback_metrics = evaluate_output(
                         text=fallback_output,
                         pattern_name=fallback_pattern
                     )
                     
+                    # Log fallback attempt
+                    self._log_fallback(
+                        agent=agent,
+                        original_pattern=pattern,
+                        fallback_pattern=fallback_pattern,
+                        metrics=metrics,
+                        reason=f"Failed metrics: {', '.join(failed_metrics)}"
+                    )
+                    
                     # Use better result
-                    if all(v >= metrics_threshold for v in fallback_metrics.values()):
+                    if all(v >= threshold for v in fallback_metrics.values()):
                         step_output = fallback_output
                         metrics = fallback_metrics
                         pattern = fallback_pattern
                         memory.record_pattern_use(agent, pattern, metrics)
             
-            # Update chain state
-            self.chain_output = step_output
-            self.metrics = {**self.metrics, **metrics}
+            # Transform output for next step
+            self.chain_output = transform_output_to_input(
+                step_output,
+                agent,
+                mode=self.config.execution_mode
+            )
+            
+            # Update metrics
+            self.metrics.update(metrics)
             
             # Record reasoning trail
             self.reasoning_trail.append({
@@ -107,50 +175,65 @@ class AgentChain:
                 "agent": agent,
                 "pattern": pattern,
                 "metrics": metrics,
-                "insights": insights
+                "output_preview": step_output[:200] + "..." if len(step_output) > 200 else step_output,
+                "failed_metrics": failed_metrics if failed_metrics else None
             })
             
-        # Record chain execution
-        memory.record_chain_execution(self.config, self.metrics, self.chain_output)
-        
         # Generate trail markdown
         self._generate_reasoning_trail()
         
         return {
             "output": self.chain_output,
             "metrics": self.metrics,
-            "reasoning_trail": self.reasoning_trail
+            "reasoning_trail": self.reasoning_trail,
+            "fallbacks": [f for f in self.fallback_log["fallbacks"] if f["timestamp"] > (datetime.now() - timedelta(minutes=5)).isoformat()]
         }
         
-    def _execute_step(self, agent: str, pattern: str, input_text: str) -> str:
-        """Execute single chain step (implement agent-specific logic here)"""
-        # TODO: Implement actual agent execution
-        return f"Output from {agent} using {pattern} on input: {input_text[:100]}..."
+    def _execute_step(
+        self,
+        agent: str,
+        pattern: str,
+        input_text: str,
+        agent_config: Dict,
+        pattern_config: Dict
+    ) -> str:
+        """Execute single chain step"""
+        # Get pattern
+        pattern_obj = get_pattern_by_name(pattern)
+        if not pattern_obj:
+            raise ValueError(f"Pattern not found: {pattern}")
+            
+        # Apply pattern
+        return pattern_obj.apply(input_text)
         
     def _generate_reasoning_trail(self):
         """Generate markdown reasoning trail"""
-        trail = ["# Chain Execution Reasoning Trail\n"]
+        trail = [
+            f"# Chain Execution Report\n",
+            f"Mode: {self.config.execution_mode}",
+            f"Time: {datetime.now().isoformat()}\n",
+            "## Steps\n"
+        ]
         
         for step in self.reasoning_trail:
-            trail.append(f"## Step {step['step']}: {step['agent']}\n")
-            trail.append(f"Pattern: {step['pattern']}\n\n")
+            trail.extend([
+                f"### Step {step['step']}: {step['agent']}",
+                f"Pattern: {step['pattern']}\n",
+                "#### Metrics:",
+                *[f"- {k}: {v:.2f}" for k, v in step['metrics'].items()],
+                "\n#### Output Preview:",
+                step['output_preview']
+            ])
             
-            trail.append("### Metrics\n")
-            for metric, value in step["metrics"].items():
-                trail.append(f"- {metric}: {value:.2f}\n")
-            
-            trail.append("\n### Insights\n")
-            for metric, data in step["insights"]["metrics_breakdown"].items():
-                trail.append(f"- {metric}: {data['score']:.2f} ({data['interpretation']})\n")
-            
-            if step["insights"]["improvement_suggestions"]:
-                trail.append("\nImprovement Suggestions:\n")
-                for suggestion in step["insights"]["improvement_suggestions"]:
-                    trail.append(f"- {suggestion}\n")
-            
+            if step.get("failed_metrics"):
+                trail.extend([
+                    "\n#### Failed Metrics:",
+                    *[f"- {m}" for m in step["failed_metrics"]]
+                ])
+                
             trail.append("\n---\n")
-        
+            
         # Save trail
-        os.makedirs("_fusion_todo", exist_ok=True)
-        with open("_fusion_todo/reasoning_trail.md", "w") as f:
+        os.makedirs(FUSION_TODO_DIR, exist_ok=True)
+        with open(FUSION_TODO_DIR / "reasoning_trail.md", "w") as f:
             f.write("\n".join(trail)) 

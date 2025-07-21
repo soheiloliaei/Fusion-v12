@@ -1,0 +1,209 @@
+{
+  "pattern_uses": [
+    {
+      "timestamp": "2025-07-21T00:58:31.762364",
+      "agent": "StrategyPilot",
+      "pattern": "StepwiseInsightSynthesis",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 0.9523809523809523,
+        "pattern_effectiveness": 0.3333333333333333,
+        "confidence_score": 0.105,
+        "fallback_reason": "Innovation: No innovation markers found; Pattern: Missing key StepwiseInsightSynthesis elements"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:01:20.809837",
+      "agent": "StrategyPilot",
+      "pattern": "StepwiseInsightSynthesis",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:02:40.872193",
+      "agent": "StrategyPilot",
+      "pattern": "StepwiseInsightSynthesis",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:02:58.336321",
+      "agent": "StrategyPilot",
+      "pattern": "StepwiseInsightSynthesis",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:03:58.775152",
+      "agent": "StrategyPilot",
+      "pattern": "StepwiseInsightSynthesis",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.060683",
+      "agent": "StrategyPilot",
+      "pattern": "StepwiseInsightSynthesis",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.061626",
+      "agent": "NarrativeArchitect",
+      "pattern": "RoleDirective",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.062484",
+      "agent": "EvaluatorAgent",
+      "pattern": "PatternCritiqueThenRewrite",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.131342",
+      "agent": "StrategyPilot",
+      "pattern": "RiskLens",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.132214",
+      "agent": "NarrativeArchitect",
+      "pattern": "StyleTransformer",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.133271",
+      "agent": "EvaluatorAgent",
+      "pattern": "PatternCritiqueThenRewrite",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.216354",
+      "agent": "EvaluatorAgent",
+      "pattern": "PatternCritiqueThenRewrite",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.217718",
+      "agent": "StrategyPilot",
+      "pattern": "InversePattern",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.218899",
+      "agent": "NarrativeArchitect",
+      "pattern": "PersonaFramer",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.293882",
+      "agent": "StrategyPilot",
+      "pattern": "StepwiseInsightSynthesis",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.295178",
+      "agent": "NarrativeArchitect",
+      "pattern": "RoleDirective",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    },
+    {
+      "timestamp": "2025-07-21T01:04:17.296254",
+      "agent": "EvaluatorAgent",
+      "pattern": "PatternCritiqueThenRewrite",
+      "metrics": {
+        "clarity_score": 1.0,
+        "innovation_score": 1.0,
+        "pattern_effectiveness": 0.5,
+        "confidence_score": 0.6,
+        "fallback_reason": "Clarity: Too many complex words; Innovation: No innovation markers found; Pattern: Unknown pattern"
+      }
+    }
+  ],
+  "chain_executions": []
+}
