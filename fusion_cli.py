@@ -3,9 +3,18 @@ import argparse
 import json
 import sys
 import os
-from typing import Dict, Optional
+from datetime import datetime
+from typing import Dict, Optional, List
+from pathlib import Path
+
 from agent_chain import AgentChain
-from execution_mode_map import ExecutionMode
+from execution_mode_map import ExecutionMode, get_mode_config
+from input_transformer import transform_output_to_input
+from prompt_pattern_registry import get_pattern_by_name
+
+CHAIN_TEMPLATES_DIR = Path("chain_templates")
+FUSION_TODO_DIR = Path("_fusion_todo")
+CHAIN_RUN_LOGS_DIR = FUSION_TODO_DIR / "chain_run_logs"
 
 def load_input(path: str) -> str:
     """Load input from file"""
@@ -27,11 +36,71 @@ def save_output(output: Dict, path: Optional[str] = None):
 
 def save_chain_config(config: Dict) -> str:
     """Save chain config and return path"""
-    os.makedirs("_fusion_todo/chains", exist_ok=True)
-    path = f"_fusion_todo/chains/chain_config.json"
+    os.makedirs(FUSION_TODO_DIR / "chains", exist_ok=True)
+    path = FUSION_TODO_DIR / "chains" / "chain_config.json"
     with open(path, 'w') as f:
         json.dump(config, f, indent=2)
-    return path
+    return str(path)
+
+def run_chain_from_template(
+    template_name: str,
+    mode: str,
+    input_text: str,
+    adaptive: bool = True
+) -> Dict:
+    """Run chain from template"""
+    # Load template
+    template_path = CHAIN_TEMPLATES_DIR / f"{template_name}.json"
+    if not template_path.exists():
+        raise ValueError(f"Template not found: {template_name}")
+        
+    template = load_chain_config(str(template_path))
+    
+    # Override mode
+    template["execution_mode"] = mode
+    
+    # Save config
+    config_path = save_chain_config(template)
+    
+    # Create and run chain
+    chain = AgentChain(config_path)
+    result = chain.execute(input_text=input_text, adaptive=adaptive)
+    
+    # Log execution
+    log_chain_execution(template, result)
+    
+    return result
+
+def log_chain_execution(template: Dict, result: Dict):
+    """Log chain execution details"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Create log directory
+    os.makedirs(CHAIN_RUN_LOGS_DIR, exist_ok=True)
+    
+    # Generate markdown log
+    log = [
+        f"# Chain Execution Log - {timestamp}\n",
+        f"## Template: {template.get('name', 'unnamed')}\n",
+        f"Mode: {template.get('execution_mode', 'unknown')}\n",
+        "## Chain Steps\n"
+    ]
+    
+    for step in result.get("reasoning_trail", []):
+        log.extend([
+            f"### Step {step['step']}: {step['agent']}",
+            f"Pattern: {step['pattern']}\n",
+            "#### Metrics",
+            *[f"- {k}: {v:.2f}" for k, v in step['metrics'].items()],
+            "\n#### Output Preview",
+            step['output_preview'],
+            "\n---\n"
+        ])
+        
+    # Save log
+    log_path = CHAIN_RUN_LOGS_DIR / f"chain_run_{timestamp}.md"
+    with open(log_path, 'w') as f:
+        f.write("\n".join(log))
 
 def main():
     parser = argparse.ArgumentParser(description="Fusion v12.0 CLI")
@@ -80,39 +149,51 @@ def main():
         # Load input
         input_text = load_input(args.input)
         
-        # Load chain config
-        if args.chain:
-            chain_config = load_chain_config(args.chain)
-            chain_config["execution_mode"] = args.mode
+        if args.template:
+            # Run from template
+            result = run_chain_from_template(
+                template_name=args.template,
+                mode=args.mode,
+                input_text=input_text,
+                adaptive=not args.no_adaptive
+            )
         else:
-            # Use template or default config
-            chain_config = {
-                "execution_mode": args.mode,
-                "chain": [
-                    {
-                        "agent": "StrategyPilot",
-                        "pattern": "StepwiseInsightSynthesis"
-                    },
-                    {
-                        "agent": "NarrativeArchitect",
-                        "pattern": "RoleDirective"
-                    },
-                    {
-                        "agent": "EvaluatorAgent",
-                        "pattern": "PatternCritiqueThenRewrite"
-                    }
-                ]
-            }
-        
-        # Save config and create chain
-        config_path = save_chain_config(chain_config)
-        chain = AgentChain(config_path)
-        
-        # Execute chain
-        result = chain.execute(
-            input_text=input_text,
-            adaptive=not args.no_adaptive
-        )
+            # Load chain config
+            if args.chain:
+                chain_config = load_chain_config(args.chain)
+                chain_config["execution_mode"] = args.mode
+            else:
+                # Use default config
+                chain_config = {
+                    "execution_mode": args.mode,
+                    "chain": [
+                        {
+                            "agent": "StrategyPilot",
+                            "pattern": "StepwiseInsightSynthesis"
+                        },
+                        {
+                            "agent": "NarrativeArchitect",
+                            "pattern": "RoleDirective"
+                        },
+                        {
+                            "agent": "EvaluatorAgent",
+                            "pattern": "PatternCritiqueThenRewrite"
+                        }
+                    ]
+                }
+            
+            # Save config and create chain
+            config_path = save_chain_config(chain_config)
+            chain = AgentChain(config_path)
+            
+            # Execute chain
+            result = chain.execute(
+                input_text=input_text,
+                adaptive=not args.no_adaptive
+            )
+            
+            # Log execution
+            log_chain_execution(chain_config, result)
         
         # Save output
         save_output(result, args.output)

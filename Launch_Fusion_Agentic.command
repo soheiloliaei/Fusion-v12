@@ -1,278 +1,227 @@
 #!/bin/bash
-# Fusion v12.0 Self-Contained Launcher
-# Downloads and sets up all required components
 
-# Create working directory
-cd "$(dirname "$0")"
-FUSION_DIR="$(pwd)"
-
-echo "🚀 Fusion v12.0 Auto-Play System"
-echo "================================"
+# Fusion v12.0 Launcher
+# This script sets up and runs the Fusion system with all dependencies
 
 # Configuration
-REPO_OWNER="soheiloliaei"
-REPO_NAME="fusion-v11"
-BRANCH="main"
-BASE_URL="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$BRANCH"
+REPO_URL="https://github.com/soheiloliaei/fusion-v11.git"
+VENV_DIR=".venv"
+FUSION_DIR="fusion-v11"
+CHAIN_TEMPLATES_DIR="chain_templates"
 
-# Required files
-declare -a FILES=(
-    "prompt_patterns.py"
-    "prompt_pattern_registry.py"
-    "fusion_v11_agents_complete.py"
-    "evaluator_metrics.py"
-    "agent_chain.py"
-    "fusion_v11_knowledge_base.json"
-    "fusion_cli.py"
-    "memory_registry.py"
-    "input_transformer.py"
-    "execution_mode_map.py"
-    "fusion_v12_config.json"
-    "requirements.txt"
-)
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-# Create workspace structure
-mkdir -p _fusion_todo/{chains,outputs,memory}
-mkdir -p chain_templates
+# Print with color
+print_color() {
+    color=$1
+    message=$2
+    printf "${color}${message}${NC}\n"
+}
 
-# Check Python installation
-if ! command -v python3 &> /dev/null; then
-    echo "❌ Python 3 not found. Please install Python 3.7 or higher."
-    exit 1
-fi
-
-# Create virtual environment
-if [ ! -d "venv" ]; then
-    echo "📦 Creating virtual environment..."
-    python3 -m venv venv
-fi
-
-# Activate virtual environment
-source venv/bin/activate
-
-# Download files
-echo "📥 Downloading required files..."
-for file in "${FILES[@]}"; do
-    echo "Downloading $file..."
-    curl -s -o "$file" "$BASE_URL/$file"
-    if [ $? -ne 0 ]; then
-        echo "❌ Failed to download $file"
+# Check if Python 3.8+ is installed
+check_python() {
+    if ! command -v python3 &> /dev/null; then
+        print_color $RED "Python 3 is not installed. Please install Python 3.8 or higher."
         exit 1
     fi
-done
+    
+    version=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+    if (( $(echo "$version < 3.8" | bc -l) )); then
+        print_color $RED "Python $version is not supported. Please install Python 3.8 or higher."
+        exit 1
+    fi
+}
 
-# Download chain templates
-echo "📥 Downloading chain templates..."
-declare -a TEMPLATES=(
-    "provocation_loop.json"
-    "critique_strategy.json"
-    "rewrite_evolution.json"
-)
+# Create and activate virtual environment
+setup_venv() {
+    print_color $BLUE "Setting up virtual environment..."
+    python3 -m venv $VENV_DIR
+    source $VENV_DIR/bin/activate
+    python3 -m pip install --upgrade pip
+}
 
-for template in "${TEMPLATES[@]}"; do
-    echo "Downloading $template..."
-    curl -s -o "chain_templates/$template" "$BASE_URL/chain_templates/$template"
-done
-
-# Make CLI executable
-chmod +x fusion_cli.py
+# Clone or update repository
+setup_repo() {
+    if [ ! -d "$FUSION_DIR" ]; then
+        print_color $BLUE "Cloning Fusion repository..."
+        git clone $REPO_URL $FUSION_DIR
+    else
+        print_color $BLUE "Updating Fusion repository..."
+        cd $FUSION_DIR
+        git pull
+        cd ..
+    fi
+}
 
 # Install dependencies
-echo "📚 Installing dependencies..."
-python3 -m pip install --upgrade pip
-python3 -m pip install -r requirements.txt
+install_deps() {
+    print_color $BLUE "Installing dependencies..."
+    cd $FUSION_DIR
+    python3 -m pip install -r requirements.txt
+    cd ..
+}
 
-# Initialize fallback log
-if [ ! -f "_fusion_todo/fallback_log.json" ]; then
-    cat > "_fusion_todo/fallback_log.json" << EOL
+# Create chain templates
+setup_templates() {
+    print_color $BLUE "Setting up chain templates..."
+    mkdir -p $FUSION_DIR/$CHAIN_TEMPLATES_DIR
+    
+    # Create simulate template
+    cat > $FUSION_DIR/$CHAIN_TEMPLATES_DIR/simulate.json << EOL
 {
-  "version": "1.0",
-  "fallback_history": [],
-  "pattern_stats": {},
-  "last_updated": null
+    "name": "simulate",
+    "description": "Exploration and testing chain",
+    "execution_mode": "simulate",
+    "chain": [
+        {
+            "agent": "StrategyPilot",
+            "pattern": "StepwiseInsightSynthesis"
+        },
+        {
+            "agent": "NarrativeArchitect",
+            "pattern": "RoleDirective"
+        },
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "PatternCritiqueThenRewrite"
+        }
+    ],
+    "success_criteria": {
+        "innovation_score": 0.8,
+        "clarity_score": 0.8
+    }
 }
 EOL
-fi
 
-# Show welcome message
-clear
-echo "🎯 Welcome to Fusion v12.0!"
-echo "============================"
-echo ""
-echo "This system helps design and analyze Block's internal tooling solutions."
-echo ""
-echo "Available Modes:"
-echo "---------------"
-echo "SIMULATE: For exploring ideas and testing concepts"
-echo "SHIP: For creating production-ready specifications"
-echo "CRITIQUE: For analyzing and improving existing designs"
-echo ""
-echo "New Features in v12.0:"
-echo "--------------------"
-echo "• 7 New Patterns (RiskLens, PersonaFramer, etc.)"
-echo "• Execution Mode System"
-echo "• Chain Templates"
-echo "• Pattern Safety & Fallback"
-echo "• Enhanced Metrics"
-echo ""
+    # Create ship template
+    cat > $FUSION_DIR/$CHAIN_TEMPLATES_DIR/ship.json << EOL
+{
+    "name": "ship",
+    "description": "Production-ready output chain",
+    "execution_mode": "ship",
+    "chain": [
+        {
+            "agent": "StrategyPilot",
+            "pattern": "StepwiseInsightSynthesis"
+        },
+        {
+            "agent": "NarrativeArchitect",
+            "pattern": "RoleDirective"
+        },
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "RiskLens"
+        }
+    ],
+    "success_criteria": {
+        "clarity_score": 0.9,
+        "pattern_effectiveness": 0.9
+    }
+}
+EOL
 
-# Show menu
-echo "Choose an action:"
-echo "1. 🧪 Run example chain (Payment Verification Flow)"
-echo "2. 🚀 Create new design (with mode selection)"
-echo "3. 🔍 Analyze existing design"
-echo "4. 📊 Run pattern benchmark"
-echo "5. 📚 View documentation"
-echo "6. ❌ Exit"
+    # Create critique template
+    cat > $FUSION_DIR/$CHAIN_TEMPLATES_DIR/critique.json << EOL
+{
+    "name": "critique",
+    "description": "Analysis and improvement chain",
+    "execution_mode": "critique",
+    "chain": [
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "PatternCritiqueThenRewrite"
+        },
+        {
+            "agent": "StrategyPilot",
+            "pattern": "StepwiseInsightSynthesis"
+        }
+    ],
+    "success_criteria": {
+        "clarity_score": 0.85,
+        "innovation_score": 0.85
+    }
+}
+EOL
+}
 
-read -p "Enter your choice (1-6): " choice
-
-case $choice in
-    1)
-        echo "🧪 Running example chain..."
-        echo "Choose execution mode:"
-        echo "1. SIMULATE (exploratory)"
-        echo "2. SHIP (production)"
-        echo "3. CRITIQUE (analysis)"
-        read -p "Enter mode (1-3): " mode_choice
+# Run Fusion CLI
+run_fusion() {
+    clear
+    while true; do
+        print_color $GREEN "\nFusion v12.0 CLI"
+        print_color $BLUE "\nSelect mode:"
+        echo "1) Simulate (exploration and testing)"
+        echo "2) Ship (production-ready output)"
+        echo "3) Critique (analysis and improvement)"
+        echo "4) Debug (detailed logging)"
+        echo "5) Pattern Test (interactive pattern testing)"
+        echo "6) View Stats (pattern performance)"
+        echo "7) Exit"
         
-        case $mode_choice in
-            1) mode="simulate";;
-            2) mode="ship";;
-            3) mode="critique";;
-            *) 
-                echo "❌ Invalid choice"
-                exit 1
+        read -p "Enter choice [1-7]: " choice
+        
+        case $choice in
+            1)
+                read -p "Enter input file path: " input_file
+                python3 fusion_cli.py simulate -i "$input_file" -t simulate
+                ;;
+            2)
+                read -p "Enter input file path: " input_file
+                python3 fusion_cli.py ship -i "$input_file" -t ship
+                ;;
+            3)
+                read -p "Enter input file path: " input_file
+                python3 fusion_cli.py critique -i "$input_file" -t critique
+                ;;
+            4)
+                read -p "Enter input file path: " input_file
+                read -p "Enter chain config file: " config_file
+                python3 fusion.py --input "$input_file" --config "$config_file"
+                ;;
+            5)
+                read -p "Enter input file path: " input_file
+                read -p "Enter pattern name: " pattern
+                python3 pattern_dev.py "$pattern" -i "$input_file"
+                ;;
+            6)
+                python3 -c "from pattern_stats import stats; stats.update_stats(); print(stats.generate_report())"
+                ;;
+            7)
+                print_color $GREEN "Goodbye!"
+                exit 0
+                ;;
+            *)
+                print_color $RED "Invalid choice"
                 ;;
         esac
         
-        ./fusion_cli.py chain chain_templates/provocation_loop.json --mode $mode
-        ;;
-    2)
-        echo "🚀 Creating new design..."
-        echo "Choose domain:"
-        echo "1. Payment Systems"
-        echo "2. User Authentication"
-        echo "3. Analytics Dashboard"
-        echo "4. Custom Domain"
-        read -p "Choose domain (1-4): " domain_choice
-        
-        case $domain_choice in
-            1) domain="payment_systems";;
-            2) domain="user_authentication";;
-            3) domain="analytics_dashboard";;
-            4) 
-                read -p "Enter custom domain: " domain
-                ;;
-            *) 
-                echo "❌ Invalid choice"
-                exit 1
-                ;;
-        esac
-        
-        echo "Choose execution mode:"
-        echo "1. SIMULATE (exploratory)"
-        echo "2. SHIP (production)"
-        echo "3. CRITIQUE (analysis)"
-        read -p "Enter mode (1-3): " mode_choice
-        
-        case $mode_choice in
-            1) mode="simulate";;
-            2) mode="ship";;
-            3) mode="critique";;
-            *) 
-                echo "❌ Invalid choice"
-                exit 1
-                ;;
-        esac
-        
-        echo "Choose chain template:"
-        echo "1. Provocation Loop (breakthrough thinking)"
-        echo "2. Critique Strategy (deep analysis)"
-        echo "3. Rewrite Evolution (iterative improvement)"
-        read -p "Choose template (1-3): " template_choice
-        
-        case $template_choice in
-            1) template="provocation_loop.json";;
-            2) template="critique_strategy.json";;
-            3) template="rewrite_evolution.json";;
-            *) 
-                echo "❌ Invalid choice"
-                exit 1
-                ;;
-        esac
-        
-        read -p "Enter design requirements: " requirements
-        
-        ./fusion_cli.py chain "chain_templates/$template" --mode $mode --domain "$domain" --text "$requirements"
-        ;;
-    3)
-        echo "🔍 Analyzing existing design..."
-        echo "Paste your design text (press Ctrl+D when done):"
-        design=$(cat)
-        
-        if [ -z "$design" ]; then
-            echo "❌ No input provided"
-            exit 1
-        fi
-        
-        ./fusion_cli.py chain chain_templates/critique_strategy.json --mode critique --text "$design"
-        ;;
-    4)
-        echo "📊 Running pattern benchmark..."
-        echo "Choose pattern to benchmark:"
-        echo "1. StepwiseInsightSynthesis"
-        echo "2. RoleDirective"
-        echo "3. PatternCritiqueThenRewrite"
-        echo "4. RiskLens"
-        echo "5. PersonaFramer"
-        echo "6. All Patterns"
-        read -p "Choose pattern (1-6): " pattern_choice
-        
-        case $pattern_choice in
-            1) pattern="StepwiseInsightSynthesis";;
-            2) pattern="RoleDirective";;
-            3) pattern="PatternCritiqueThenRewrite";;
-            4) pattern="RiskLens";;
-            5) pattern="PersonaFramer";;
-            6) pattern="all";;
-            *) 
-                echo "❌ Invalid choice"
-                exit 1
-                ;;
-        esac
-        
-        if [ "$pattern" = "all" ]; then
-            ./fusion_cli.py benchmark --input examples/test_input.txt
-        else
-            ./fusion_cli.py benchmark --pattern "$pattern" --input examples/test_input.txt
-        fi
-        ;;
-    5)
-        echo "📚 Opening documentation..."
-        if [ -f "README.md" ]; then
-            cat README.md
-        else
-            curl -s "$BASE_URL/README.md"
-        fi
-        ;;
-    6)
-        echo "👋 Goodbye!"
-        exit 0
-        ;;
-    *)
-        echo "❌ Invalid choice"
-        exit 1
-        ;;
-esac
+        echo
+        read -p "Press Enter to continue..."
+    done
+}
 
-# Show results location
-echo ""
-echo "📂 Results are saved in:"
-echo "- Chain configuration: _fusion_todo/chains/"
-echo "- Generated output: _fusion_todo/outputs/"
-echo "- Reasoning trail: _fusion_todo/reasoning_trail.md"
-echo "- Pattern metrics: _fusion_todo/memory/"
+# Main execution
+main() {
+    print_color $GREEN "Welcome to Fusion v12.0!"
+    
+    # Setup steps
+    check_python
+    setup_venv
+    setup_repo
+    install_deps
+    setup_templates
+    
+    # Change to Fusion directory
+    cd $FUSION_DIR
+    
+    # Run CLI
+    run_fusion
+}
 
-# Deactivate virtual environment
-deactivate 
+# Run main function
+main 

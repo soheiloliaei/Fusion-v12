@@ -1,241 +1,194 @@
 #!/usr/bin/env python3
-from typing import Dict, List, Optional
+import argparse
 import json
-from datetime import datetime
+import sys
 import os
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Optional, List, Any
 
-from prompt_pattern_registry import get_pattern_by_name, get_available_patterns
+from prompt_pattern_registry import get_pattern_by_name, list_patterns as get_all_patterns
 from evaluator_metrics import evaluate_output
-from execution_mode_map import get_mode_config, apply_mode_to_pattern
+from execution_mode_map import get_mode_config
 
-class PatternTester:
-    def __init__(self, results_dir: str = "_fusion_todo/pattern_tests"):
-        self.results_dir = results_dir
-        os.makedirs(results_dir, exist_ok=True)
+FUSION_TODO_DIR = Path("_fusion_todo")
+PATTERN_TESTS_DIR = FUSION_TODO_DIR / "pattern_tests"
+
+def test_pattern(
+    pattern_name: str,
+    input_text: str,
+    mode: str = "simulate",
+    save_results: bool = True
+) -> Dict[str, Any]:
+    """Test a pattern with given input"""
+    # Get pattern
+    pattern = get_pattern_by_name(pattern_name)
+    if not pattern:
+        raise ValueError(f"Pattern not found: {pattern_name}")
         
-    def test_pattern(
-        self,
-        pattern_name: str,
-        input_text: str,
-        mode: Optional[str] = None,
-        save_results: bool = True
-    ) -> Dict:
-        """Test a pattern with input text"""
+    # Apply pattern
+    output = pattern.apply(input_text)
+    
+    # Evaluate output
+    metrics = evaluate_output(text=output, pattern_name=pattern_name)
+    
+    # Get mode config
+    mode_config = get_mode_config(mode)
+    threshold = mode_config.critique_threshold
+    
+    # Check if fallback would trigger
+    failed_metrics = [k for k, v in metrics.items() if isinstance(v, float) and v < threshold]
+    would_fallback = bool(failed_metrics)
+    
+    # Prepare results
+    results = {
+        "timestamp": datetime.now().isoformat(),
+        "pattern": pattern_name,
+        "mode": mode,
+        "input_preview": input_text[:200] + "..." if len(input_text) > 200 else input_text,
+        "output": output,
+        "metrics": metrics,
+        "would_fallback": would_fallback,
+        "failed_metrics": failed_metrics if would_fallback else None,
+        "threshold": threshold
+    }
+    
+    # Save results if requested
+    if save_results:
+        save_test_results(results)
         
-        # Get pattern
-        pattern = get_pattern_by_name(pattern_name)
-        if not pattern:
-            raise ValueError(f"Pattern not found: {pattern_name}")
-            
-        # Get base config
-        base_config = pattern.get_config() if hasattr(pattern, 'get_config') else {}
+    return results
+
+def save_test_results(results: Dict[str, Any]):
+    """Save test results to file"""
+    # Create directory
+    os.makedirs(PATTERN_TESTS_DIR, exist_ok=True)
+    
+    # Save JSON results
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    json_path = PATTERN_TESTS_DIR / f"test_{timestamp}.json"
+    with open(json_path, 'w') as f:
+        json.dump(results, f, indent=2)
         
-        # Apply mode if specified
-        if mode:
-            config = apply_mode_to_pattern(pattern_name, mode, base_config)
+    # Generate markdown report
+    report = [
+        f"# Pattern Test Report - {timestamp}\n",
+        f"## Pattern: {results['pattern']}",
+        f"Mode: {results['mode']}\n",
+        "## Input Preview",
+        results['input_preview'],
+        "\n## Output",
+        results['output'],
+        "\n## Metrics"
+    ]
+    
+    for k, v in results['metrics'].items():
+        if isinstance(v, float):
+            report.append(f"- {k}: {v:.2f}")
         else:
-            config = base_config
+            report.append(f"- {k}: {v}")
             
-        # Apply pattern
-        output = pattern.apply(input_text)
+    if results['would_fallback']:
+        report.extend([
+            "\n## Fallback Analysis",
+            f"Threshold: {results['threshold']:.2f}",
+            "Failed metrics:",
+            *[f"- {m}" for m in results['failed_metrics']]
+        ])
         
-        # Evaluate output
-        metrics = evaluate_output(
-            text=output,
-            pattern_name=pattern_name
-        )
-        
-        # Prepare results
-        results = {
-            "timestamp": datetime.now().isoformat(),
-            "pattern": pattern_name,
-            "mode": mode,
-            "config": config,
-            "input_preview": input_text[:200] + "..." if len(input_text) > 200 else input_text,
-            "output_preview": output[:200] + "..." if len(output) > 200 else output,
-            "metrics": metrics,
-            "full_output": output
-        }
-        
-        # Save results if requested
-        if save_results:
-            self._save_test_results(results)
-            
-        return results
-        
-    def benchmark_patterns(
-        self,
-        input_text: str,
-        patterns: Optional[List[str]] = None,
-        mode: Optional[str] = None
-    ) -> Dict:
-        """Benchmark multiple patterns against input"""
-        
-        # Use all patterns if none specified
-        if not patterns:
-            patterns = get_available_patterns()
-            
-        results = {}
-        for pattern_name in patterns:
-            try:
-                result = self.test_pattern(
-                    pattern_name=pattern_name,
-                    input_text=input_text,
-                    mode=mode,
-                    save_results=True
-                )
-                results[pattern_name] = result
-            except Exception as e:
-                results[pattern_name] = {
-                    "error": str(e),
-                    "timestamp": datetime.now().isoformat()
-                }
-                
-        # Calculate comparative metrics
-        comparison = self._compare_results(results)
-        
-        # Save benchmark results
-        self._save_benchmark_results(results, comparison)
-        
-        return {
-            "results": results,
-            "comparison": comparison
-        }
-        
-    def _save_test_results(self, results: Dict):
-        """Save individual test results"""
-        filename = f"test_{results['pattern']}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        filepath = os.path.join(self.results_dir, filename)
-        
-        with open(filepath, 'w') as f:
-            json.dump(results, f, indent=2)
-            
-    def _save_benchmark_results(self, results: Dict, comparison: Dict):
-        """Save benchmark results"""
-        filename = f"benchmark_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        filepath = os.path.join(self.results_dir, filename)
-        
-        with open(filepath, 'w') as f:
-            json.dump({
-                "results": results,
-                "comparison": comparison
-            }, f, indent=2)
-            
-    def _compare_results(self, results: Dict) -> Dict:
-        """Compare results across patterns"""
-        comparison = {
-            "best_overall": None,
-            "best_clarity": None,
-            "best_innovation": None,
-            "metrics_summary": {}
-        }
-        
-        # Calculate averages and find best performers
-        best_overall_score = 0
-        best_clarity_score = 0
-        best_innovation_score = 0
-        
-        for pattern, result in results.items():
-            if "error" in result:
-                continue
-                
-            metrics = result["metrics"]
-            
-            # Track averages
-            if pattern not in comparison["metrics_summary"]:
-                comparison["metrics_summary"][pattern] = {
-                    "overall": metrics.get("overall", 0),
-                    "clarity": metrics.get("clarity", 0),
-                    "innovation": metrics.get("innovation", 0)
-                }
-                
-            # Track best performers
-            overall = metrics.get("overall", 0)
-            clarity = metrics.get("clarity", 0)
-            innovation = metrics.get("innovation", 0)
-            
-            if overall > best_overall_score:
-                best_overall_score = overall
-                comparison["best_overall"] = pattern
-                
-            if clarity > best_clarity_score:
-                best_clarity_score = clarity
-                comparison["best_clarity"] = pattern
-                
-            if innovation > best_innovation_score:
-                best_innovation_score = innovation
-                comparison["best_innovation"] = pattern
-                
-        return comparison
+    # Save markdown report
+    md_path = PATTERN_TESTS_DIR / f"test_{timestamp}.md"
+    with open(md_path, 'w') as f:
+        f.write("\n".join(report))
+
+def list_patterns() -> List[str]:
+    """List all available patterns"""
+    return sorted(get_all_patterns().keys())
 
 def main():
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Pattern Development and Testing Tool")
+    parser = argparse.ArgumentParser(description="Fusion v12.0 Pattern Development Tool")
     
     parser.add_argument(
-        "action",
-        choices=["test", "benchmark"],
-        help="Action to perform"
-    )
-    
-    parser.add_argument(
-        "--pattern",
-        help="Pattern to test"
+        "pattern",
+        help="Pattern name to test"
     )
     
     parser.add_argument(
         "--input",
+        "-i",
         required=True,
         help="Input text file"
     )
     
     parser.add_argument(
         "--mode",
+        "-m",
+        default="simulate",
         choices=["simulate", "ship", "critique"],
-        help="Execution mode"
+        help="Execution mode (default: simulate)"
     )
     
     parser.add_argument(
-        "--output",
-        help="Output file for results"
+        "--no-save",
+        "-ns",
+        action="store_true",
+        help="Don't save test results"
+    )
+    
+    parser.add_argument(
+        "--list",
+        "-l",
+        action="store_true",
+        help="List available patterns"
     )
     
     args = parser.parse_args()
     
-    # Read input text
-    with open(args.input, 'r') as f:
-        input_text = f.read()
-        
-    tester = PatternTester()
-    
     try:
-        if args.action == "test":
-            if not args.pattern:
-                parser.error("--pattern is required for test action")
-                
-            results = tester.test_pattern(
-                pattern_name=args.pattern,
-                input_text=input_text,
-                mode=args.mode
-            )
-        else:  # benchmark
-            results = tester.benchmark_patterns(
-                input_text=input_text,
-                patterns=[args.pattern] if args.pattern else None,
-                mode=args.mode
-            )
+        if args.list:
+            patterns = list_patterns()
+            print("\nAvailable patterns:")
+            for p in patterns:
+                print(f"- {p}")
+            return
             
-        # Output results
-        if args.output:
-            with open(args.output, 'w') as f:
-                json.dump(results, f, indent=2)
-        else:
-            print(json.dumps(results, indent=2))
+        # Load input
+        with open(args.input, 'r') as f:
+            input_text = f.read()
+            
+        # Run test
+        results = test_pattern(
+            pattern_name=args.pattern,
+            input_text=input_text,
+            mode=args.mode,
+            save_results=not args.no_save
+        )
+        
+        # Print results
+        print("\nTest Results:")
+        print(f"Pattern: {results['pattern']}")
+        print(f"Mode: {results['mode']}\n")
+        
+        print("Metrics:")
+        for k, v in results['metrics'].items():
+            if isinstance(v, float):
+                print(f"- {k}: {v:.2f}")
+            else:
+                print(f"- {k}: {v}")
+                
+        if results['would_fallback']:
+            print("\nFallback Analysis:")
+            print(f"Threshold: {results['threshold']:.2f}")
+            print("Failed metrics:")
+            for m in results['failed_metrics']:
+                print(f"- {m}")
+                
+        if not args.no_save:
+            print(f"\nResults saved to: {PATTERN_TESTS_DIR}")
             
     except Exception as e:
-        print(f"Error: {str(e)}")
-        exit(1)
+        print(f"Error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main() 

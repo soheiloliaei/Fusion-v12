@@ -6,14 +6,18 @@ Provides sequential agent execution with pattern application, creative tension, 
 from typing import Dict, List, Optional
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+from pathlib import Path
 
 from memory_registry import memory
 from evaluator_metrics import evaluate_output
 from execution_mode_map import get_mode_config, apply_mode_to_agent, apply_mode_to_pattern
 from prompt_pattern_registry import get_pattern_by_name, get_fallback_pattern
 from input_transformer import transform_output_to_input
+
+FUSION_TODO_DIR = Path("_fusion_todo")
+FALLBACK_LOG_PATH = FUSION_TODO_DIR / "fallback_log.json"
 
 @dataclass
 class ChainConfig:
@@ -40,6 +44,41 @@ class AgentChain:
         self.metrics = {}
         self.chain_output = ""
         self.reasoning_trail = []
+        self.fallback_log = self._load_fallback_log()
+        
+    def _load_fallback_log(self) -> Dict:
+        """Load or create fallback log"""
+        os.makedirs(FUSION_TODO_DIR, exist_ok=True)
+        if FALLBACK_LOG_PATH.exists():
+            with open(FALLBACK_LOG_PATH, 'r') as f:
+                return json.load(f)
+        return {"fallbacks": []}
+        
+    def _save_fallback_log(self):
+        """Save fallback log"""
+        with open(FALLBACK_LOG_PATH, 'w') as f:
+            json.dump(self.fallback_log, f, indent=2)
+            
+    def _log_fallback(
+        self,
+        agent: str,
+        original_pattern: str,
+        fallback_pattern: str,
+        metrics: Dict[str, float],
+        reason: str
+    ):
+        """Log a fallback event"""
+        self.fallback_log["fallbacks"].append({
+            "timestamp": datetime.now().isoformat(),
+            "agent": agent,
+            "original_pattern": original_pattern,
+            "fallback_pattern": fallback_pattern,
+            "metrics": metrics,
+            "reason": reason,
+            "mode": self.config.execution_mode,
+            "threshold": self.mode_config.critique_threshold
+        })
+        self._save_fallback_log()
         
     def execute(self, input_text: str, adaptive: bool = True) -> Dict:
         """Execute the chain"""
@@ -85,7 +124,9 @@ class AgentChain:
             
             # Check if metrics meet threshold
             threshold = self.mode_config.critique_threshold
-            if adaptive and any(v < threshold for v in metrics.values()):
+            failed_metrics = [k for k, v in metrics.items() if v < threshold]
+            
+            if adaptive and failed_metrics:
                 # Try fallback pattern
                 fallback_pattern = get_fallback_pattern(pattern)
                 if fallback_pattern:
@@ -100,6 +141,15 @@ class AgentChain:
                     fallback_metrics = evaluate_output(
                         text=fallback_output,
                         pattern_name=fallback_pattern
+                    )
+                    
+                    # Log fallback attempt
+                    self._log_fallback(
+                        agent=agent,
+                        original_pattern=pattern,
+                        fallback_pattern=fallback_pattern,
+                        metrics=metrics,
+                        reason=f"Failed metrics: {', '.join(failed_metrics)}"
                     )
                     
                     # Use better result
@@ -125,7 +175,8 @@ class AgentChain:
                 "agent": agent,
                 "pattern": pattern,
                 "metrics": metrics,
-                "output_preview": step_output[:200] + "..." if len(step_output) > 200 else step_output
+                "output_preview": step_output[:200] + "..." if len(step_output) > 200 else step_output,
+                "failed_metrics": failed_metrics if failed_metrics else None
             })
             
         # Generate trail markdown
@@ -134,7 +185,8 @@ class AgentChain:
         return {
             "output": self.chain_output,
             "metrics": self.metrics,
-            "reasoning_trail": self.reasoning_trail
+            "reasoning_trail": self.reasoning_trail,
+            "fallbacks": [f for f in self.fallback_log["fallbacks"] if f["timestamp"] > (datetime.now() - timedelta(minutes=5)).isoformat()]
         }
         
     def _execute_step(
@@ -167,14 +219,21 @@ class AgentChain:
             trail.extend([
                 f"### Step {step['step']}: {step['agent']}",
                 f"Pattern: {step['pattern']}\n",
-                "Metrics:",
+                "#### Metrics:",
                 *[f"- {k}: {v:.2f}" for k, v in step['metrics'].items()],
-                "\nOutput Preview:",
-                step['output_preview'],
-                "\n---\n"
+                "\n#### Output Preview:",
+                step['output_preview']
             ])
             
+            if step.get("failed_metrics"):
+                trail.extend([
+                    "\n#### Failed Metrics:",
+                    *[f"- {m}" for m in step["failed_metrics"]]
+                ])
+                
+            trail.append("\n---\n")
+            
         # Save trail
-        os.makedirs("_fusion_todo", exist_ok=True)
-        with open("_fusion_todo/reasoning_trail.md", "w") as f:
+        os.makedirs(FUSION_TODO_DIR, exist_ok=True)
+        with open(FUSION_TODO_DIR / "reasoning_trail.md", "w") as f:
             f.write("\n".join(trail)) 

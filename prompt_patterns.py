@@ -1,288 +1,132 @@
-from typing import Dict, List, Optional
-from dataclasses import dataclass
-from enum import Enum
-import re
-
-class PatternSafety:
-    @staticmethod
-    def escape_special_tokens(text: str) -> str:
-        """Escape special tokens and characters"""
-        replacements = {
-            "{": "{{",
-            "}": "}}",
-            "###": "\\#\\#\\#",
-            "---": "\\-\\-\\-",
-            "\n\n\n+": "\n\n"  # Collapse multiple newlines
-        }
-        
-        for old, new in replacements.items():
-            text = text.replace(old, new)
-        return text
-
-@dataclass
-class PatternConfig:
-    """Base configuration for patterns"""
-    effectiveness_weight: float = 1.0
-    safety_mode: bool = True
-    context: Optional[Dict] = None
-
-class BasePattern:
-    """Base class for all patterns"""
-    def __init__(self, config: Optional[PatternConfig] = None):
-        self.config = config or PatternConfig()
-        
-    def apply(self, text: str) -> str:
-        """Apply pattern to text"""
-        if self.config.safety_mode:
-            text = PatternSafety.escape_special_tokens(text)
-        return self._apply_pattern(text)
-        
-    def _apply_pattern(self, text: str) -> str:
-        """Pattern-specific implementation"""
-        raise NotImplementedError
-        
-    def get_config(self) -> Dict:
-        """Get pattern configuration"""
-        return {
-            "effectiveness_weight": self.config.effectiveness_weight,
-            "safety_mode": self.config.safety_mode
-        }
+from typing import Optional
+from pattern_base import BasePattern, PatternConfig
 
 class StepwiseInsightSynthesis(BasePattern):
-    """Break down complex problems into clear steps"""
+    """Break down complex topics into clear, sequential steps"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="StepwiseInsightSynthesis",
+            description="Break down complex topics into clear, sequential steps",
+            example="Step 1: Define the problem\nStep 2: Analyze key factors\nStep 3: Synthesize solution"
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        return f"""Problem Analysis:
-1. Context and Requirements
-{self._extract_requirements(text)}
-
-2. Key Components
-{self._identify_components(text)}
-
-3. Step-by-Step Solution
-{self._generate_steps(text)}
-
-4. Implementation Path
-{self._outline_implementation(text)}
-
-5. Success Metrics
-{self._define_metrics(text)}"""
-    
-    def _extract_requirements(self, text: str) -> str:
-        # Implementation details...
-        return "Extracted requirements..."
-        
-    def _identify_components(self, text: str) -> str:
-        return "Key components..."
-        
-    def _generate_steps(self, text: str) -> str:
-        return "Solution steps..."
-        
-    def _outline_implementation(self, text: str) -> str:
-        return "Implementation outline..."
-        
-    def _define_metrics(self, text: str) -> str:
-        return "Success metrics..."
+        # TODO: Implement actual pattern logic
+        return f"Step 1: Initial Analysis\n{text}\n\nStep 2: Key Insights\n..."
 
 class RoleDirective(BasePattern):
-    """Embody specific roles for specialized perspectives"""
+    """Frame insights from specific role perspectives"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="RoleDirective",
+            description="Frame insights from specific role perspectives",
+            example="As a Security Architect, I recommend..."
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        role = self.config.context.get("role", "Technical Lead")
-        domain = self.config.context.get("domain", "block")
-        return f"""As a {role} focused on {domain}, here's my analysis:
-
-Key Considerations:
-{self._analyze_from_role(text, role)}
-
-Recommendations:
-{self._make_recommendations(text, role)}
-
-Implementation Notes:
-{self._provide_implementation_notes(text, role)}"""
-    
-    def _analyze_from_role(self, text: str, role: str) -> str:
-        return "Role-specific analysis..."
-        
-    def _make_recommendations(self, text: str, role: str) -> str:
-        return "Recommendations..."
-        
-    def _provide_implementation_notes(self, text: str, role: str) -> str:
-        return "Implementation notes..."
+        # TODO: Implement actual pattern logic
+        return f"As a Domain Expert:\n{text}"
 
 class PatternCritiqueThenRewrite(BasePattern):
-    """Analyze and improve outputs through structured critique"""
+    """Analyze and improve content through structured critique"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="PatternCritiqueThenRewrite",
+            description="Analyze and improve content through structured critique",
+            example="Issues:\n1. Lacks clarity\n\nImproved version:\n..."
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        return f"""Analysis:
-{self._analyze_content(text)}
-
-Strengths:
-{self._identify_strengths(text)}
-
-Areas for Improvement:
-{self._identify_improvements(text)}
-
-Enhanced Version:
-{self._generate_improved_version(text)}"""
-    
-    def _analyze_content(self, text: str) -> str:
-        return "Content analysis..."
-        
-    def _identify_strengths(self, text: str) -> str:
-        return "Strengths identified..."
-        
-    def _identify_improvements(self, text: str) -> str:
-        return "Areas for improvement..."
-        
-    def _generate_improved_version(self, text: str) -> str:
-        return "Improved version..."
+        # TODO: Implement actual pattern logic
+        return f"Analysis:\n{text}\n\nImproved version:\n..."
 
 class RiskLens(BasePattern):
-    """Analyze content through risk assessment lens"""
+    """Evaluate content through risk assessment lens"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="RiskLens",
+            description="Evaluate content through risk assessment lens",
+            example="Risk factors:\n1. Security implications\n2. Compliance concerns"
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        return f"""Risk Assessment:
-{self._identify_risks(text)}
-
-Mitigation Strategies:
-{self._suggest_mitigations(text)}
-
-Risk-Adjusted Solution:
-{self._adjust_for_risks(text)}"""
-    
-    def _identify_risks(self, text: str) -> str:
-        return "Identified risks..."
-        
-    def _suggest_mitigations(self, text: str) -> str:
-        return "Mitigation strategies..."
-        
-    def _adjust_for_risks(self, text: str) -> str:
-        return "Risk-adjusted solution..."
+        # TODO: Implement actual pattern logic
+        return f"Risk Analysis:\n{text}\n\nMitigation Strategies:\n..."
 
 class PersonaFramer(BasePattern):
-    """Frame content for specific personas"""
+    """Frame content for specific user personas"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="PersonaFramer",
+            description="Frame content for specific user personas",
+            example="For Technical Users:\n...\nFor Business Users:\n..."
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        persona = self.config.context.get("persona", "technical_lead")
-        return f"""From {persona.replace('_', ' ').title()} Perspective:
-
-Key Priorities:
-{self._identify_priorities(text, persona)}
-
-Specific Concerns:
-{self._address_concerns(text, persona)}
-
-Tailored Solution:
-{self._tailor_solution(text, persona)}"""
-    
-    def _identify_priorities(self, text: str, persona: str) -> str:
-        return "Persona priorities..."
-        
-    def _address_concerns(self, text: str, persona: str) -> str:
-        return "Addressed concerns..."
-        
-    def _tailor_solution(self, text: str, persona: str) -> str:
-        return "Tailored solution..."
+        # TODO: Implement actual pattern logic
+        return f"Persona Analysis:\n{text}\n\nPersona-Specific Output:\n..."
 
 class SignalExtractor(BasePattern):
     """Extract key signals and patterns from content"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="SignalExtractor",
+            description="Extract key signals and patterns from content",
+            example="Key Signals:\n1. Trend A\n2. Pattern B"
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        return f"""Key Signals:
-{self._extract_signals(text)}
-
-Pattern Recognition:
-{self._identify_patterns(text)}
-
-Signal-Based Insights:
-{self._generate_insights(text)}"""
-    
-    def _extract_signals(self, text: str) -> str:
-        return "Extracted signals..."
-        
-    def _identify_patterns(self, text: str) -> str:
-        return "Identified patterns..."
-        
-    def _generate_insights(self, text: str) -> str:
-        return "Generated insights..."
+        # TODO: Implement actual pattern logic
+        return f"Signal Analysis:\n{text}\n\nExtracted Patterns:\n..."
 
 class InversePattern(BasePattern):
-    """Analyze problem from inverse perspective"""
+    """Analyze content from opposite perspective"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="InversePattern",
+            description="Analyze content from opposite perspective",
+            example="Original View:\n...\nInverse Analysis:\n..."
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        return f"""Inverse Problem Statement:
-{self._invert_problem(text)}
-
-Anti-Goals Analysis:
-{self._analyze_anti_goals(text)}
-
-Synthesized Solution:
-{self._synthesize_solution(text)}"""
-    
-    def _invert_problem(self, text: str) -> str:
-        return "Inverted problem..."
-        
-    def _analyze_anti_goals(self, text: str) -> str:
-        return "Anti-goals analysis..."
-        
-    def _synthesize_solution(self, text: str) -> str:
-        return "Synthesized solution..."
+        # TODO: Implement actual pattern logic
+        return f"Original:\n{text}\n\nInverse Perspective:\n..."
 
 class ReductionistPrompt(BasePattern):
-    """Break complex problems into fundamental components"""
+    """Break down complex concepts into fundamental components"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="ReductionistPrompt",
+            description="Break down complex concepts into fundamental components",
+            example="Core Components:\n1. Basic element A\n2. Basic element B"
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        return f"""Core Components:
-{self._identify_core_components(text)}
-
-Component Analysis:
-{self._analyze_components(text)}
-
-Reconstructed Solution:
-{self._reconstruct_solution(text)}"""
-    
-    def _identify_core_components(self, text: str) -> str:
-        return "Core components..."
-        
-    def _analyze_components(self, text: str) -> str:
-        return "Component analysis..."
-        
-    def _reconstruct_solution(self, text: str) -> str:
-        return "Reconstructed solution..."
+        # TODO: Implement actual pattern logic
+        return f"Complex Input:\n{text}\n\nFundamental Components:\n..."
 
 class StyleTransformer(BasePattern):
     """Transform content style while preserving meaning"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="StyleTransformer",
+            description="Transform content style while preserving meaning",
+            example="Original Style:\n...\nTransformed Style:\n..."
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        style = self.config.context.get("style", "technical")
-        return f"""Style-Transformed Content:
-{self._transform_style(text, style)}
-
-Key Points Preserved:
-{self._verify_key_points(text)}
-
-Style Guidelines Applied:
-{self._list_style_guidelines(style)}"""
-    
-    def _transform_style(self, text: str, style: str) -> str:
-        return "Transformed content..."
-        
-    def _verify_key_points(self, text: str) -> str:
-        return "Verified points..."
-        
-    def _list_style_guidelines(self, style: str) -> str:
-        return "Style guidelines..."
+        # TODO: Implement actual pattern logic
+        return f"Original:\n{text}\n\nStyled Output:\n..."
 
 class PatternAmplifier(BasePattern):
     """Amplify specific aspects of content"""
+    def __init__(self):
+        super().__init__(PatternConfig(
+            name="PatternAmplifier",
+            description="Amplify specific aspects of content",
+            example="Original:\n...\nAmplified Focus:\n..."
+        ))
+        
     def _apply_pattern(self, text: str) -> str:
-        focus = self.config.context.get("focus", ["innovation"])
-        return f"""Amplified Elements:
-{self._amplify_elements(text, focus)}
-
-Impact Analysis:
-{self._analyze_impact(text)}
-
-Enhanced Solution:
-{self._enhance_solution(text, focus)}"""
-    
-    def _amplify_elements(self, text: str, focus: List[str]) -> str:
-        return "Amplified elements..."
-        
-    def _analyze_impact(self, text: str) -> str:
-        return "Impact analysis..."
-        
-    def _enhance_solution(self, text: str, focus: List[str]) -> str:
-        return "Enhanced solution..." 
+        # TODO: Implement actual pattern logic
+        return f"Input:\n{text}\n\nAmplified Output:\n..." 
