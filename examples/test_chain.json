@@ -1,0 +1,41 @@
+{
+    "name": "fraud_detection_design",
+    "description": "Design fraud detection system with balanced approach",
+    "execution_mode": "simulate",
+    "chain": [
+        {
+            "agent": "StrategyPilot",
+            "pattern": "StepwiseInsightSynthesis",
+            "config": {
+                "innovation_bias": 1.2,
+                "step_depth": "high"
+            }
+        },
+        {
+            "agent": "EvaluatorAgent",
+            "pattern": "RiskLens",
+            "config": {
+                "focus_areas": [
+                    "security",
+                    "user_experience",
+                    "performance"
+                ]
+            }
+        },
+        {
+            "agent": "NarrativeArchitect",
+            "pattern": "PatternCritiqueThenRewrite",
+            "config": {
+                "critique_depth": "high",
+                "domain": "block"
+            }
+        }
+    ],
+    "success_criteria": {
+        "innovation_score": 0.8,
+        "security_score": 0.9,
+        "clarity_score": 0.85
+    },
+    "max_iterations": 3,
+    "output_format": "markdown"
+}

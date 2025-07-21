@@ -3,205 +3,120 @@ import argparse
 import json
 import sys
 import os
-from typing import Dict, List, Optional
-from enum import Enum
-from dataclasses import dataclass
-from datetime import datetime
-
-from memory_registry import memory
+from typing import Dict, Optional
 from agent_chain import AgentChain
+from execution_mode_map import ExecutionMode
 
-class ExecutionMode(Enum):
-    SIMULATE = "simulate"  # For exploration and testing
-    SHIP = "ship"         # For production-ready output
-    CRITIQUE = "critique" # For analysis and improvement
+def load_input(path: str) -> str:
+    """Load input from file"""
+    with open(path, 'r') as f:
+        return f.read()
 
-@dataclass
-class ChainTemplate:
-    """Predefined chain configurations"""
-    name: str
-    description: str
-    agents: List[Dict]
-    mode: ExecutionMode
-    
-    @classmethod
-    def get_templates(cls) -> Dict[str, 'ChainTemplate']:
-        return {
-            "strategy": ChainTemplate(
-                name="strategy",
-                description="Strategic analysis and planning",
-                agents=[
-                    {"agent": "StrategyPilot", "pattern": "StepwiseInsightSynthesis"},
-                    {"agent": "NarrativeArchitect", "pattern": "RoleDirective"},
-                    {"agent": "EvaluatorAgent", "pattern": "PatternCritiqueThenRewrite"}
-                ],
-                mode=ExecutionMode.SIMULATE
-            ),
-            "critique": ChainTemplate(
-                name="critique",
-                description="Deep analysis and improvement",
-                agents=[
-                    {"agent": "EvaluatorAgent", "pattern": "PatternCritiqueThenRewrite"},
-                    {"agent": "StrategyPilot", "pattern": "StepwiseInsightSynthesis"}
-                ],
-                mode=ExecutionMode.CRITIQUE
-            ),
-            "ship": ChainTemplate(
-                name="ship",
-                description="Production-ready output generation",
-                agents=[
-                    {"agent": "StrategyPilot", "pattern": "StepwiseInsightSynthesis"},
-                    {"agent": "NarrativeArchitect", "pattern": "RoleDirective"},
-                    {"agent": "EvaluatorAgent", "pattern": "PatternCritiqueThenRewrite"}
-                ],
-                mode=ExecutionMode.SHIP
-            )
-        }
+def load_chain_config(path: str) -> Dict:
+    """Load chain configuration"""
+    with open(path, 'r') as f:
+        return json.load(f)
 
-class FusionCLI:
-    def __init__(self):
-        self.templates = ChainTemplate.get_templates()
-        self._ensure_workspace()
-        
-    def _ensure_workspace(self):
-        """Ensure workspace directories exist"""
-        os.makedirs("_fusion_todo", exist_ok=True)
-        os.makedirs("_fusion_todo/chains", exist_ok=True)
-        os.makedirs("_fusion_todo/outputs", exist_ok=True)
-        
-    def _save_chain_config(self, template: ChainTemplate, input_text: str) -> str:
-        """Save chain configuration for execution"""
-        config = {
-            "timestamp": datetime.now().isoformat(),
-            "mode": template.mode.value,
-            "agents": template.agents,
-            "input": input_text
-        }
-        
-        filename = f"_fusion_todo/chains/chain_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(filename, "w") as f:
-            json.dump(config, f, indent=2)
-            
-        return filename
-        
-    def _save_output(self, output: Dict, template: ChainTemplate) -> str:
-        """Save execution output"""
-        filename = f"_fusion_todo/outputs/output_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(filename, "w") as f:
-            json.dump({
-                "template": template.name,
-                "mode": template.mode.value,
-                "timestamp": datetime.now().isoformat(),
-                **output
-            }, f, indent=2)
-            
-        return filename
-        
-    def execute(self, template_name: str, input_text: str, adaptive: bool = True) -> Dict:
-        """Execute a chain template"""
-        if template_name not in self.templates:
-            raise ValueError(f"Unknown template: {template_name}")
-            
-        template = self.templates[template_name]
-        
-        # Save chain configuration
-        config_file = self._save_chain_config(template, input_text)
-        
-        # Create and execute chain
-        chain = AgentChain(config_file)
-        result = chain.execute(input_text, adaptive=adaptive)
-        
-        # Save output
-        output_file = self._save_output(result, template)
-        
-        # Generate report
-        self._generate_execution_report(template, result, config_file, output_file)
-        
-        return result
-        
-    def _generate_execution_report(
-        self, 
-        template: ChainTemplate,
-        result: Dict,
-        config_file: str,
-        output_file: str
-    ):
-        """Generate markdown execution report"""
-        report = [
-            f"# Fusion Execution Report\n",
-            f"## Template: {template.name}",
-            f"Mode: {template.mode.value}",
-            f"Time: {datetime.now().isoformat()}\n",
-            "## Configuration",
-            f"- Config file: `{config_file}`",
-            f"- Output file: `{output_file}`\n",
-            "## Execution Summary",
-            "### Metrics",
-        ]
-        
-        for metric, value in result["metrics"].items():
-            report.append(f"- {metric}: {value:.2f}")
-            
-        report.append("\n### Reasoning Trail\n")
-        for step in result["reasoning_trail"]:
-            report.append(f"#### Step {step['step']}: {step['agent']}")
-            report.append(f"Pattern: {step['pattern']}\n")
-            report.append("Metrics:")
-            for metric, value in step["metrics"].items():
-                report.append(f"- {metric}: {value:.2f}")
-            report.append("\n")
-            
-        # Save report
-        report_file = f"_fusion_todo/outputs/report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
-        with open(report_file, "w") as f:
-            f.write("\n".join(report))
+def save_output(output: Dict, path: Optional[str] = None):
+    """Save output to file or print to stdout"""
+    if path:
+        with open(path, 'w') as f:
+            json.dump(output, f, indent=2)
+    else:
+        print(json.dumps(output, indent=2))
+
+def save_chain_config(config: Dict) -> str:
+    """Save chain config and return path"""
+    os.makedirs("_fusion_todo/chains", exist_ok=True)
+    path = f"_fusion_todo/chains/chain_config.json"
+    with open(path, 'w') as f:
+        json.dump(config, f, indent=2)
+    return path
 
 def main():
-    parser = argparse.ArgumentParser(description="Fusion v11.2 CLI")
+    parser = argparse.ArgumentParser(description="Fusion v12.0 CLI")
+    
     parser.add_argument(
         "mode",
         choices=["simulate", "ship", "critique"],
         help="Execution mode"
     )
+    
     parser.add_argument(
-        "input",
-        help="Input text or task description"
+        "--input",
+        "-i",
+        required=True,
+        help="Input text file"
     )
+    
     parser.add_argument(
-        "--template", "-t",
-        default=None,
-        help="Chain template to use (default: based on mode)"
+        "--chain",
+        "-c",
+        help="Chain configuration JSON file"
     )
+    
     parser.add_argument(
-        "--no-adaptive", "-na",
+        "--template",
+        "-t",
+        help="Chain template name"
+    )
+    
+    parser.add_argument(
+        "--output",
+        "-o",
+        help="Output JSON file (default: stdout)"
+    )
+    
+    parser.add_argument(
+        "--no-adaptive",
+        "-na",
         action="store_true",
         help="Disable adaptive pattern switching"
-    )
-    parser.add_argument(
-        "--output", "-o",
-        help="Output file (default: auto-generated)"
     )
     
     args = parser.parse_args()
     
     try:
-        cli = FusionCLI()
+        # Load input
+        input_text = load_input(args.input)
         
-        # Use mode-specific template if none specified
-        template = args.template or args.mode
+        # Load chain config
+        if args.chain:
+            chain_config = load_chain_config(args.chain)
+            chain_config["execution_mode"] = args.mode
+        else:
+            # Use template or default config
+            chain_config = {
+                "execution_mode": args.mode,
+                "chain": [
+                    {
+                        "agent": "StrategyPilot",
+                        "pattern": "StepwiseInsightSynthesis"
+                    },
+                    {
+                        "agent": "NarrativeArchitect",
+                        "pattern": "RoleDirective"
+                    },
+                    {
+                        "agent": "EvaluatorAgent",
+                        "pattern": "PatternCritiqueThenRewrite"
+                    }
+                ]
+            }
         
-        result = cli.execute(
-            template_name=template,
-            input_text=args.input,
+        # Save config and create chain
+        config_path = save_chain_config(chain_config)
+        chain = AgentChain(config_path)
+        
+        # Execute chain
+        result = chain.execute(
+            input_text=input_text,
             adaptive=not args.no_adaptive
         )
         
-        if args.output:
-            with open(args.output, "w") as f:
-                json.dump(result, f, indent=2)
-        else:
-            print(json.dumps(result, indent=2))
-            
+        # Save output
+        save_output(result, args.output)
+        
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
         sys.exit(1)

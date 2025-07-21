@@ -59,12 +59,9 @@ class PatternRegistry:
         cls,
         pattern_name: str,
         config: Optional[PatternConfig] = None
-    ) -> Optional[BasePattern]:
-        """Get fallback pattern for given pattern"""
-        fallback_name = cls._fallback_preferences.get(pattern_name)
-        if fallback_name:
-            return cls.get_pattern(fallback_name, config)
-        return None
+    ) -> Optional[str]:
+        """Get fallback pattern name for given pattern"""
+        return cls._fallback_preferences.get(pattern_name)
         
     @classmethod
     def get_available_patterns(cls) -> Dict[str, str]:
@@ -97,7 +94,7 @@ def get_pattern_by_name(
 def get_fallback_pattern(
     pattern_name: str,
     config: Optional[PatternConfig] = None
-) -> Optional[BasePattern]:
+) -> Optional[str]:
     """Get fallback pattern for given pattern"""
     return PatternRegistry.get_fallback_pattern(pattern_name, config)
 

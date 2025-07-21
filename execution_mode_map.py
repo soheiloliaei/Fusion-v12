@@ -98,7 +98,15 @@ EXECUTION_MODE_BEHAVIOR: Dict[str, ModeConfig] = {
 def get_mode_config(mode: str) -> ModeConfig:
     """Get configuration for execution mode"""
     if mode not in EXECUTION_MODE_BEHAVIOR:
-        raise ValueError(f"Unknown execution mode: {mode}")
+        # Return default mode config
+        return ModeConfig(
+            tone="balanced",
+            innovation_weight=1.0,
+            clarity_weight=1.0,
+            critique_threshold=0.7,
+            pattern_modifiers={},
+            agent_modifiers={}
+        )
     return EXECUTION_MODE_BEHAVIOR[mode]
 
 def apply_mode_to_agent(
@@ -116,7 +124,7 @@ def apply_mode_to_agent(
     if agent_name in mode_config.agent_modifiers:
         modifiers = mode_config.agent_modifiers[agent_name]
         for key, modifier in modifiers.items():
-            if key in config:
+            if key in config and isinstance(config[key], (int, float)):
                 config[key] *= modifier
                 
     # Add mode metadata
@@ -140,7 +148,7 @@ def apply_mode_to_pattern(
     # Apply pattern-specific modifier
     if pattern_name in mode_config.pattern_modifiers:
         modifier = mode_config.pattern_modifiers[pattern_name]
-        if "effectiveness_weight" in config:
+        if "effectiveness_weight" in config and isinstance(config["effectiveness_weight"], (int, float)):
             config["effectiveness_weight"] *= modifier
             
     # Apply global mode weights
